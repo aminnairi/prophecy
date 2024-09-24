@@ -1,8 +1,10 @@
 {
   "private": true,
-  "name": "@prophecy/core",
-  "description": "Shape your future, leave uncertainty behind",
-  "devDependencies": {
-    "vite": "5.4.7"
-  }
+  "workspaces": [
+    "packages/core",
+    "packages/issue",
+    "packages/web",
+    "packages/node",
+    "example/web"
+  ]
 }

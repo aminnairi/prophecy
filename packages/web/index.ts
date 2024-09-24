@@ -1,4 +1,5 @@
-import { DiscriminatedIssue, Prophecy, kind, map } from "./prophecy";
+import { Prophecy } from "@prophecy/core";
+import { DiscriminatedIssue, kind } from "@prophecy/issue";
 
 export class ElementNotFoundIssue implements DiscriminatedIssue {
   public readonly [kind] = "ElementNotFoundIssue";
@@ -47,17 +48,3 @@ export const setTextContent = (textContent: string) => (element: HTMLElement): P
     return onValue(element);
   });
 };
-
-getElementById("text").and(onEvent("input")).and(onText).and(text => {
-  return getElementById("output").and(setTextContent(`Hello, ${text}`));
-}).onIssue(issue => {
-  switch (issue[kind]) {
-    case "ElementNotFoundIssue":
-      console.error("Element not found.");
-      return null;
-
-    case "ElementNotInputIssue":
-      console.error("Element is not an input.");
-      return null;
-  }
-});

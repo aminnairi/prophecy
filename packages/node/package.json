@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "version": "0.1.0",
+  "name": "@prophecy/node",
+  "description": "Shape your future, leave uncertainty behind",
+  "devDependencies": {
+    "@types/node": "22.6.1"
+  }
+}

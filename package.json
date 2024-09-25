@@ -5,6 +5,9 @@
     "packages/issue",
     "packages/web",
     "packages/node",
-    "example/web"
+    "packages/string",
+    "packages/array",
+    "example/web",
+    "example/node"
   ]
 }

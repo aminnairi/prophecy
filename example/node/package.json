@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "version": "0.1.0",
+  "name": "@prophecy/example-node",
+  "description": "",
+  "scripts": {
+    "start": "tsx index.ts"
+  },
+  "devDependencies": {
+    "@types/node": "22.6.1",
+    "tsx": "4.19.1"
+  }
+}

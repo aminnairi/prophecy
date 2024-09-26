@@ -7,6 +7,8 @@
     "packages/node",
     "packages/string",
     "packages/array",
+    "packages/http",
+    "packages/time",
     "example/web",
     "example/node"
   ]

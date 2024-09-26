@@ -17,3 +17,9 @@ export const whenEmpty = (fallback: string) => (text: string): Future<string, ne
     return onValue(text.trim().length === 0 ? fallback : text);
   });
 };
+
+export const withString = (data: unknown): Future<string, never> => {
+  return new Future(onValue => {
+    return onValue(String(data));
+  });
+};

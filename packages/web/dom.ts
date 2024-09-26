@@ -112,7 +112,7 @@ export class ElementNotInputIssue implements DiscriminatedIssue {
   public readonly [kind] = "ElementNotInputIssue";
 }
 
-export const getElementById = (identifier: string): Future<HTMLElement, ElementNotFoundIssue> => {
+export const forId = (identifier: string): Future<HTMLElement, ElementNotFoundIssue> => {
   return new Future((onValue, onIssue) => {
     const element = document.getElementById(identifier);
 
@@ -124,7 +124,7 @@ export const getElementById = (identifier: string): Future<HTMLElement, ElementN
   });
 };
 
-export const onEvent = (eventName: string) => (element: HTMLElement): Future<Event, never> => {
+export const forEvent = (eventName: string) => (element: HTMLElement): Future<Event, never> => {
   return new Future((onValue) => {
     element.addEventListener(eventName, (event) => {
       onValue(event);
@@ -134,7 +134,7 @@ export const onEvent = (eventName: string) => (element: HTMLElement): Future<Eve
   });
 };
 
-export const onText = (event: Event): Future<string, ElementNotInputIssue> => {
+export const withInputText = (event: Event): Future<string, ElementNotInputIssue> => {
   return new Future((onValue, onIssue) => {
     if (event.target instanceof HTMLInputElement) {
       return onValue(event.target.value);

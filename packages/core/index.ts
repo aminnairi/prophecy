@@ -10,26 +10,12 @@ export type Operator<Value, NewValue, NewIssue> = (value: Value) => Future<NewVa
 
 export type Transform<Value, NewValue> = (value: Value) => NewValue
 
+export type Fork<Value> = (value: Value) => null
+
 export class Future<Value, Issue> {
   constructor(private readonly observer: Observer<Value, Issue>) {}
 
-  public and<NewValue>(transform: Transform<Value, NewValue>): Future<NewValue, Issue | UnexpectedIssue> {
-    return new Future((onValue, onIssue) => {
-      try {
-        return this.on({
-          value: value => {
-            return onValue(transform(value));
-          },
-          issue: onIssue
-        });
-      } catch (error) {
-        const errorNormalized = error instanceof Error ? error : new Error(String(error));
-        return onIssue(new UnexpectedIssue(errorNormalized));
-      }
-    });
-  }
-
-  public andThen<NewValue, NewIssue>(operator: Operator<Value, NewValue, NewIssue>): Future<NewValue, Issue | NewIssue | UnexpectedIssue> {
+  public do<NewValue, NewIssue>(operator: Operator<Value, NewValue, NewIssue>): Future<NewValue, Issue | NewIssue | UnexpectedIssue> {
     return new Future((onValue, onIssue) => {
       try {
         return this.on({
@@ -50,21 +36,12 @@ export class Future<Value, Issue> {
     });
   }
 
-  public updateError<NewIssue>(updateIssue: (issue: Issue) => NewIssue): Future<Value, NewIssue | UnexpectedIssue> {
-    return new Future((onValue, onIssue) => {
-      try {
-        return this.on({
-          value: value => {
-            return onValue(value);
-          },
-          issue: issue => {
-            return onIssue(updateIssue(issue));
-          }
-        });
-      } catch (error) {
-        const errorNormalized = error instanceof Error ? error : new Error(String(error));
-        return onIssue(new UnexpectedIssue(errorNormalized));
-      }
+  public fork(fork: Fork<Value>): Future<Value, Issue | UnexpectedIssue> {
+    return this.do(value => {
+      return new Future((onValue) => {
+        fork(value);
+        return onValue(value);
+      });
     });
   }
 

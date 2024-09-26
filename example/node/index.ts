@@ -15,6 +15,10 @@ isFileAccessible("package.json").andThen(getBufferFromFile).and(String).on({
       case "IsFileAccessibleIssue":
         console.error("File package.json is not accessible.");
         return null;
+
+      case "UnexpectedIssue":
+        console.error(`Unexpected error: ${issue.error}`);
+        return null;
     }
   }
 });

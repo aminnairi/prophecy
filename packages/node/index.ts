@@ -1,8 +1,8 @@
 import { Future } from "@prophecy/core";
-import { DiscriminatedIssue, kind } from "@prophecy/issue";
-import { readFile, access, constants } from "fs/promises";
+import { DiscriminatedIssue, UnexpectedIssue, kind } from "@prophecy/issue";
+import { readFile, access, constants, writeFile } from "fs/promises";
 
-export enum FileAccessibility {
+export enum FileAccess {
   Readable,
   Writable,
   Visible,
@@ -21,7 +21,7 @@ export class IsFileAccessibleIssue implements DiscriminatedIssue {
   public constructor(public readonly message: string) {}
 }
 
-export const getBufferFromFile = (path: string): Future<Buffer, GetBufferFromFileIssue> => {
+export const withBufferForFile = (path: string): Future<Buffer, GetBufferFromFileIssue> => {
   return new Future((onValue, onIssue) => {
     readFile(path).then(buffer => {
       onValue(buffer);
@@ -34,22 +34,22 @@ export const getBufferFromFile = (path: string): Future<Buffer, GetBufferFromFil
   });
 };
 
-export const isFileAccessible = (path: string, modes: FileAccessibility | Array<FileAccessibility> = FileAccessibility.Visible): Future<string, IsFileAccessibleIssue> => {
+export const forFileWithAccess = (modes: FileAccess | Array<FileAccess>, path: string): Future<string, IsFileAccessibleIssue> => {
   return new Future((onValue, onIssue) => {
     const modesNormalized = Array.isArray(modes) ? modes : [modes];
 
     const modesCombined = modesNormalized.reduce((previousMode, currentMode) => {
       switch (currentMode) {
-        case FileAccessibility.Executable:
+        case FileAccess.Executable:
           return previousMode | constants.X_OK
 
-        case FileAccessibility.Readable:
+        case FileAccess.Readable:
           return previousMode | constants.R_OK;
 
-        case FileAccessibility.Writable:
+        case FileAccess.Writable:
           return previousMode | constants.W_OK
 
-        case FileAccessibility.Visible:
+        case FileAccess.Visible:
           return previousMode;
       }
     }, constants.F_OK);
@@ -63,4 +63,32 @@ export const isFileAccessible = (path: string, modes: FileAccessibility | Array<
 
     return null;
   });
+};
+
+export const writeStringToPath = (path: string, data: string): Future<void, UnexpectedIssue> => {
+  return new Future((onValue, onIssue) => {
+    writeFile(path, data).then(() => {
+      onValue();
+    }).catch(error => {
+      const errorNormalized = error instanceof Error ? error : new Error(String(error));
+      onIssue(new UnexpectedIssue(errorNormalized));
+    });
+
+    return null;
+  });
+};
+
+export const writeToPath = (path: string) => {
+  return (data: string): Future<void, UnexpectedIssue> => {
+    return new Future((onValue, onIssue) => {
+      writeFile(path, data).then(() => {
+        onValue();
+      }).catch(error => {
+        const errorNormalized = error instanceof Error ? error : new Error(String(error));
+        onIssue(new UnexpectedIssue(errorNormalized));
+      });
+
+      return null;
+    });
+  }
 };

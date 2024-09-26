@@ -1,4 +1,4 @@
-import { Prophecy } from "@prophecy/core";
+import { Future } from "@prophecy/core";
 import { DiscriminatedIssue, kind } from "@prophecy/issue";
 import { readFile, access, constants } from "fs/promises";
 
@@ -21,8 +21,8 @@ export class IsFileAccessibleIssue implements DiscriminatedIssue {
   public constructor(public readonly message: string) {}
 }
 
-export const getBufferFromFile = (path: string): Prophecy<Buffer, GetBufferFromFileIssue> => {
-  return new Prophecy((onValue, onIssue) => {
+export const getBufferFromFile = (path: string): Future<Buffer, GetBufferFromFileIssue> => {
+  return new Future((onValue, onIssue) => {
     readFile(path).then(buffer => {
       onValue(buffer);
     }).catch(error => {
@@ -34,8 +34,8 @@ export const getBufferFromFile = (path: string): Prophecy<Buffer, GetBufferFromF
   });
 };
 
-export const isFileAccessible = (path: string, modes: FileAccessibility | Array<FileAccessibility> = FileAccessibility.Visible): Prophecy<string, IsFileAccessibleIssue> => {
-  return new Prophecy((onValue, onIssue) => {
+export const isFileAccessible = (path: string, modes: FileAccessibility | Array<FileAccessibility> = FileAccessibility.Visible): Future<string, IsFileAccessibleIssue> => {
+  return new Future((onValue, onIssue) => {
     const modesNormalized = Array.isArray(modes) ? modes : [modes];
 
     const modesCombined = modesNormalized.reduce((previousMode, currentMode) => {

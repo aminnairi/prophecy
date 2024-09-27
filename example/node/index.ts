@@ -16,24 +16,17 @@ withAbortController()
       })
     });
   })
-  .fork(({ signal }) => {
-    return sendRequestAtUrl("https://jsonplaceholder.typicode.com/users", { signal })
-      .do(toJson)
-      .do(withUsers)
-      .do(toStringifiedJson({ pretty: true }))
-      .do(writeToPath("users.json"))
-      .on({
-        issue: match({
-          BadResponseIssue: issue => console.error(`Bad response from the server: ${issue.response.status}`),
-          JsonParseIssue: () => console.error("Failed to parse the response to json."),
-          RequestCanceledIssue: () => console.error("Request canceled, nothing to do."),
-          UserValidationIssue: () => console.error("Failed to validate the users from the response."),
-          UnexpectedIssue: issue => console.error(`Unexpected issue: ${issue.error}`),
-        })
-      });
-  })
+  .do(({ signal }) => sendRequestAtUrl("https://jsonplaceholder.typicode.com/users", { signal }))
+  .do(toJson)
+  .do(withUsers)
+  .do(toStringifiedJson({ pretty: true }))
+  .do(writeToPath("users.json"))
   .on({
     issue: match({
-      UnexpectedIssue: () => console.error("Failed to instantiate an abort controller")
+      UnexpectedIssue: () => console.error("Failed to instantiate an abort controller"),
+      BadResponseIssue: issue => console.error(`Bad response from the server: ${issue.response.status}`),
+      JsonParseIssue: () => console.error("Failed to parse the response to json."),
+      RequestCanceledIssue: () => console.error("Request canceled, nothing to do."),
+      UserValidationIssue: () => console.error("Failed to validate the users from the response."),
     })
   });

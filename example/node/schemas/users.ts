@@ -37,7 +37,8 @@ export const toJson = (data: string): Future<unknown, JsonParseIssue | Unexpecte
     try {
       return onValue(JSON.parse(data));
     } catch (error) {
-      return onIssue(new JsonParseIssue(error));
+      const normalizedError = error instanceof Error ? error : new Error(String(error));
+      return onIssue(new JsonParseIssue(normalizedError));
     }
   });
 }

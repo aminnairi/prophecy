@@ -1,15 +1,12 @@
 import { match } from "@prophecy/issue";
 import { writeToPath } from "@prophecy/node/filesystem";
-import { abortAt, sendRequestAtUrl, withAbortController } from "@prophecy/http";
+import { abortAt, createAbortController, sendAbortableRequest } from "@prophecy/http";
 import { Users, toJson, toStringifiedJson, toUsers } from "./schemas/users";
 import { Future } from "@prophecy/core";
 
-withAbortController()
+createAbortController()
   .and(abortAt({ seconds: 5 }))
-  .and(({ abortController: { signal }, stopTimeout }) => {
-    return sendRequestAtUrl("https://jsonplaceholder.typicode.com/users", { signal })
-      .and(stopTimeout);
-  })
+  .and(sendAbortableRequest("https://jsonplaceholder.typicode.com/users"))
   .and(toJson)
   .and(toUsers)
   .recover("UserValidationIssue", () => new Future<Users, never>(onValue => onValue([])))

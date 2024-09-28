@@ -65,10 +65,10 @@ export const forFileWithAccess = (modes: FileAccess | Array<FileAccess>, path: s
   });
 };
 
-export const writeStringToPath = (path: string, data: string): Future<void, UnexpectedIssue> => {
+export const writeStringToPath = (path: string, data: string): Future<never, UnexpectedIssue> => {
   return new Future((onValue, onIssue) => {
     writeFile(path, data).then(() => {
-      onValue();
+      onValue(undefined as never);
     }).catch(error => {
       const errorNormalized = error instanceof Error ? error : new Error(String(error));
       onIssue(new UnexpectedIssue(errorNormalized));
@@ -79,10 +79,10 @@ export const writeStringToPath = (path: string, data: string): Future<void, Unex
 };
 
 export const writeToPath = (path: string) => {
-  return (data: string): Future<void, UnexpectedIssue> => {
+  return (data: string): Future<never, UnexpectedIssue> => {
     return new Future((onValue, onIssue) => {
       writeFile(path, data).then(() => {
-        onValue();
+        onValue(undefined as never);
       }).catch(error => {
         const errorNormalized = error instanceof Error ? error : new Error(String(error));
         onIssue(new UnexpectedIssue(errorNormalized));

@@ -20,7 +20,7 @@ export const userSchema = z.object({
 
 export const usersSchema = z.array(userSchema);
 
-export const withUsers = (data: unknown): Future<Users, UserValidationIssue | UnexpectedIssue> => {
+export const toUsers = (data: unknown): Future<Users, UserValidationIssue | UnexpectedIssue> => {
   return new Future((onValue, onIssue) => {
     const validation = usersSchema.safeParse(data);
 

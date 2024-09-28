@@ -39,7 +39,7 @@ export const sendRequest = (url: string, options: RequestInit): Future<string, B
   });
 };
 
-export const sendAbortableRequest = (url: string, options?: RequestInit) => {
+export const sendAbortableRequest = ({ url, ...options }: RequestInit & { url: string }) => {
   return ({ abortController: { signal }, stopNextAbort }: AbortAtOutput): Future<string, BadResponseIssue | RequestCanceledIssue | UnexpectedIssue> => {
     return sendRequest(url, {
       ...options,

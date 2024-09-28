@@ -78,7 +78,7 @@ export const writeStringToPath = (path: string, data: string): Future<never, Une
   });
 };
 
-export const writeToPath = (path: string) => {
+export const writeToFile = ({ path }: { path: string }) => {
   return (data: string): Future<never, UnexpectedIssue> => {
     return new Future((onValue, onIssue) => {
       writeFile(path, data).then(() => {

@@ -10,11 +10,12 @@ export class RequestCanceledIssue implements DiscriminatedIssue {
   public readonly [kind] = "RequestCanceledIssue";
 }
 
-export const sendRequestAtUrl = (url: string, options: RequestInit): Future<string, BadResponseIssue | RequestCanceledIssue | UnexpectedIssue> => {
+export const sendRequest = (url: string, options: RequestInit): Future<string, BadResponseIssue | RequestCanceledIssue | UnexpectedIssue> => {
   return new Future((onValue, onIssue) => {
     fetch(url, options).then(response => {
       if (response.ok) {
         return response.text().then(text => {
+
           onValue(text);
         });
       }
@@ -38,7 +39,16 @@ export const sendRequestAtUrl = (url: string, options: RequestInit): Future<stri
   });
 };
 
-export const withAbortController = (): Future<AbortController, never> => {
+export const sendAbortableRequest = (url: string, options?: RequestInit) => {
+  return ({ abortController: { signal }, stopNextAbort }: AbortAtOutput): Future<string, BadResponseIssue | RequestCanceledIssue | UnexpectedIssue> => {
+    return sendRequest(url, {
+      ...options,
+      signal
+    }).and(stopNextAbort);
+  }
+}
+
+export const createAbortController = (): Future<AbortController, never> => {
   return new Future(onValue => {
     return onValue(new AbortController);
   });
@@ -53,7 +63,7 @@ export interface AbortAtOptions {
 
 export interface AbortAtOutput {
   abortController: AbortController,
-  stopTimeout: <Value>(value: Value) => Future<Value, never>
+  stopNextAbort: <Value>(value: Value) => Future<Value, never>
 }
 
 export const abortAt = (options?: AbortAtOptions) => (abortController: AbortController): Future<AbortAtOutput, UnexpectedIssue> => {
@@ -75,13 +85,13 @@ export const abortAt = (options?: AbortAtOptions) => (abortController: AbortCont
       abortController.abort();
     }, delayInMilliseconds);
 
-    const stopTimeout = <Value>(value: Value): Future<Value, never> => {
+    const stopNextAbort = <Value>(value: Value): Future<Value, never> => {
       return new Future((onValue) => {
         clearTimeout(timeoutIdentifier);
         return onValue(value);
       });
     };
 
-    return onValue({ abortController, stopTimeout });
+    return onValue({ abortController, stopNextAbort });
   });
 };

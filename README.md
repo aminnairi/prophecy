@@ -1,4 +1,4 @@
-# @prophecy/core
+# prophecy
 
 Shape your future, leave uncertainty behind
 
@@ -43,9 +43,9 @@ Hence why this library has been created: provide a data structure that would all
 
 This library is aimed at anyone having some understanding of the main principles of functional programming since it has been designed with functional programming in mind.
 
-And above all, this library is aimed at anyone wanting some sleep in the night, knowing they have successfully transpiled their code without errors, and so without any case left out since this library has a strong policy over errors since you have to handle them all.
+And above all, this library is aimed at anyone wanting some sleep in the night, knowing they have successfully transpiled their code without errors, and so without any case left out since this library has a strong policy over errors and how to handle them all.
 
-This library is not for those wanting a fast alternative to RxJS of Effect, nor those who don't value the importance of error handling in their code, those that might rather code only on the happy path, and not see the dark path.
+This library is not for those wanting a fast alternative to RxJS of Effect, nor those who don't value the importance of error handling in their code, those that might rather code only on the happy path, and not see the dark path, or those that would rather prefer using imperative programming instead.
 
 ## Examples
 
@@ -56,6 +56,19 @@ See [`example/web`](./example/web)
 ### Node
 
 See [`example/node`](./example/node)
+
+## Packages
+
+Package | Description
+---|---
+[`@prophecy/core`](./packages/core) | Core library for Prophecy
+[`@prophecy/issue`](./packages/issue) | Errors as discriminated issues with pattern matching
+[`@prophecy/http`](./packages/http) | Type-safe http requests
+[`@prophecy/node`](./packages/node) | Type-safe Node.js APIs
+[`@prophecy/web`](./packages/web) | Type-safe Web APIs
+[`@prophecy/array`](./packages/array) | Type-safe array manipulation
+[`@prophecy/string`](./packages/string) | Type-safe string manipulation
+[`@prophecy/time`](./packages/time) | Type-safe time manipulation
 
 ## What's left to do?
 

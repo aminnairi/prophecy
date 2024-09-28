@@ -1,17 +1,17 @@
 import { match } from "@prophecy/issue";
-import { writeToPath } from "@prophecy/node/filesystem";
+import { writeToFile } from "@prophecy/node/filesystem";
 import { abortAt, createAbortController, sendAbortableRequest } from "@prophecy/http";
-import { Users, toJson, toStringifiedJson, toUsers } from "./schemas/users";
+import { toJson, toStringifiedJson, toUsers } from "./schemas/users";
 import { Future } from "@prophecy/core";
 
 createAbortController()
   .and(abortAt({ seconds: 5 }))
-  .and(sendAbortableRequest("https://jsonplaceholder.typicode.com/users"))
+  .and(sendAbortableRequest({ url: "https://jsonplaceholder.typicode.com/users" }))
   .and(toJson)
   .and(toUsers)
-  .recover("UserValidationIssue", () => new Future<Users, never>(onValue => onValue([])))
+  .recover({ issue: "UserValidationIssue", remediation: () => Future.fromValue(() => []) })
   .and(toStringifiedJson({ pretty: true }))
-  .and(writeToPath("users.json"))
+  .and(writeToFile({ path: "users.json" }))
   .run({
     onIssue: match({
       UnexpectedIssue: () => console.error("Failed to instantiate an abort controller"),

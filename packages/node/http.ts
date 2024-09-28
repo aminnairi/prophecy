@@ -3,17 +3,17 @@ import { DiscriminatedIssue, UnexpectedIssue, kind, match } from "@prophecy/issu
 import { Server, createServer } from "http";
 
 export class PortNegativeIssue implements DiscriminatedIssue {
-  public readonly [kind]: "PortNegativeIssue";
+  public readonly [kind] = "PortNegativeIssue";
   public constructor(public readonly port: number) {} 
 }
 
 export class PortNotNumberIssue implements DiscriminatedIssue {
-  public readonly [kind]: "PortNotNumberIssue";
+  public readonly [kind] = "PortNotNumberIssue";
   public constructor(public readonly port: number) {} 
 }
 
 export class PortInfiniteIssue implements DiscriminatedIssue {
-  public readonly [kind]: "PortInfiniteIssue";
+  public readonly [kind] = "PortInfiniteIssue";
 }
 
 export class HostInvalidIssue implements DiscriminatedIssue {
@@ -99,16 +99,3 @@ export const listen = ({ port, host }: HttpServerListenOptions) => {
     });
   };
 };
-
-withServer()
-  .do(withRoute(HttpMethod.Get, "/", () => ({ statusCode: 200, headers: {}, body: "Hello, world!" })))
-  .do(listen({ port: 8000, host: "0.0.0.0" }))
-  .fork(({ port, host }) => (console.log(`Server started on http://${host}:${port}`), null))
-  .on({
-    issue: match({
-      UnexpectedIssue: issue => console.error(`Unexpected issue: ${issue.error}`),
-      PortInfiniteIssue: () => console.error(`Unable to set an infinite port`),
-      PortNegativeIssue: issue => console.error(`Negative port not allowed, ${issue.port} provided.`),
-      PortNotNumberIssue: issue => console.error(`Only number expected for port, ${issue.port} provided.`)
-    })
-  });

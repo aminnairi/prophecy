@@ -36,6 +36,25 @@ export class Future<Value, Issue> {
     });
   }
 
+  public recover<IssueKind extends Issue[typeof kind], RecoveredIssue extends Extract<Issue, { [kind]: IssueKind }>, IssueWithoutExcludedIssue extends Exclude<Issue, RecoveredIssue>, NewValue, NewIssue extends DiscriminatedIssue>(issueKind: IssueKind, update: (issue: RecoveredIssue) => Future<NewValue, NewIssue>): Future<Value | NewValue, IssueWithoutExcludedIssue | NewIssue> {
+    return new Future((onValue, onIssue) => {
+      this.run({
+        onIssue: issue => {
+          if (issue[kind] === issueKind) {
+            return update(issue as unknown as RecoveredIssue).run({
+              onIssue,
+              onValue
+            });
+          }
+
+          return onIssue(issue as unknown as IssueWithoutExcludedIssue);
+        },
+        onValue
+      });
+      return null;
+    });
+  }
+
   public fork(fork: Fork<Value>): Future<Value, Issue | UnexpectedIssue> {
     return this.do(value => {
       return new Future((onValue) => {

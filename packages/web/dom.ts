@@ -134,7 +134,7 @@ export const forEvent = (eventName: string) => (element: HTMLElement): Future<Ev
   });
 };
 
-export const withInputText = (event: Event): Future<string, ElementNotInputIssue> => {
+export const getInputValue = (event: Event): Future<string, ElementNotInputIssue> => {
   return new Future((onValue, onIssue) => {
     if (event.target instanceof HTMLInputElement) {
       return onValue(event.target.value);

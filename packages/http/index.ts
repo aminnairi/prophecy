@@ -51,14 +51,19 @@ export interface AbortAtOptions {
   hours?: number
 }
 
-export const abortAt = (options?: AbortAtOptions) => (abortController: AbortController): Future<AbortController, UnexpectedIssue> => {
+export interface AbortAtOutput {
+  abortController: AbortController,
+  stopTimeout: <Value>(value: Value) => Future<Value, never>
+}
+
+export const abortAt = (options?: AbortAtOptions) => (abortController: AbortController): Future<AbortAtOutput, UnexpectedIssue> => {
   return new Future(onValue => {
     const { milliseconds, seconds, minutes, hours } = {
-      ...options ?? {},
       milliseconds: 0,
       seconds: 0,
       minutes: 0,
-      hours: 0
+      hours: 0,
+      ...options ?? {}
     };
 
     const secondsInMilliseconds = seconds * 1000;
@@ -66,11 +71,17 @@ export const abortAt = (options?: AbortAtOptions) => (abortController: AbortCont
     const hoursInMilliseconds = hours * 3600 * 1000;
     const delayInMilliseconds = milliseconds + secondsInMilliseconds + minutesInMilliseconds + hoursInMilliseconds;
 
-    setTimeout(() => {
+    const timeoutIdentifier = setTimeout(() => {
       abortController.abort();
-      onValue(abortController);
     }, delayInMilliseconds);
 
-    return null;
+    const stopTimeout = <Value>(value: Value): Future<Value, never> => {
+      return new Future((onValue) => {
+        clearTimeout(timeoutIdentifier);
+        return onValue(value);
+      });
+    };
+
+    return onValue({ abortController, stopTimeout });
   });
 };

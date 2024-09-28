@@ -1,4 +1,4 @@
-import { UnexpectedIssue } from "@prophecy/issue";
+import { DiscriminatedIssue, UnexpectedIssue, kind } from "@prophecy/issue";
 
 export type OnIssue<Issue> = (issue: Issue) => null;
 
@@ -6,28 +6,24 @@ export type OnValue<Value> = (value: Value) => null;
 
 export type Observer<Value, Issue> = (onValue: OnValue<Value>, onIssue: OnIssue<Issue>) => null;
 
-export type Operator<Value, NewValue, NewIssue> = (value: Value) => Future<NewValue, NewIssue>;
+export type Update<Value, NewValue, NewIssue extends DiscriminatedIssue> = (value: Value) => Future<NewValue, NewIssue>;
 
 export type Transform<Value, NewValue> = (value: Value) => NewValue
 
 export type Fork<Value> = (value: Value) => null
 
-export class Future<Value, Issue> {
-  constructor(private readonly observer: Observer<Value, Issue>) {}
+export class Future<Value, Issue extends DiscriminatedIssue> {
+  constructor(private readonly observer: Observer<Value, Issue>) { }
 
-  public do<NewValue, NewIssue>(operator: Operator<Value, NewValue, NewIssue>): Future<NewValue, Issue | NewIssue | UnexpectedIssue> {
+  public and<NewValue, NewIssue extends DiscriminatedIssue>(update: Update<Value, NewValue, NewIssue>): Future<NewValue, Issue | NewIssue | UnexpectedIssue> {
     return new Future((onValue, onIssue) => {
       try {
-        return this.on({
-          value: (value) => {
-            const newProphecy = operator(value);
-
-            return newProphecy.on({
-              value: onValue,
-              issue: onIssue
-            });
-          },
-          issue: onIssue
+        return this.run({
+          onIssue: onIssue,
+          onValue: value => update(value).run({
+            onIssue,
+            onValue,
+          })
         });
       } catch (error) {
         const errorNormalized = error instanceof Error ? error : new Error(String(error));
@@ -56,7 +52,7 @@ export class Future<Value, Issue> {
   }
 
   public fork(fork: Fork<Value>): Future<Value, Issue | UnexpectedIssue> {
-    return this.do(value => {
+    return this.and(value => {
       return new Future((onValue) => {
         fork(value);
         return onValue(value);
@@ -64,9 +60,8 @@ export class Future<Value, Issue> {
     });
   }
 
-  public on({ value, issue }: { value?: OnValue<Value>, issue: OnIssue<Issue> }): null {
-    const ignore = () => null;
-    return this.observer(value ?? ignore, issue);
+  public run({ onIssue, onValue = () => null }: { onIssue: OnIssue<Issue>, onValue?: OnValue<Value> }): null {
+    return this.observer(onValue, onIssue);
   }
 }
 

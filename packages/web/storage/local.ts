@@ -1,4 +1,4 @@
-import { Prophecy } from "@prophecy/core";
+import { Future } from "@prophecy/core";
 import { DiscriminatedIssue, kind } from "@prophecy/issue";
 
 export class ItemNotFoundFromLocalStorageIssue implements DiscriminatedIssue {
@@ -8,16 +8,16 @@ export class ItemNotFoundFromLocalStorageIssue implements DiscriminatedIssue {
 }
 
 // TODO: handle the event triggered on the window and emit a value only when the window has received the event
-export const clearLocalStorage = (): Prophecy<void, never> => {
-  return new Prophecy((onValue) => {
+export const clearLocalStorage = (): Future<void, never> => {
+  return new Future((onValue) => {
     window.localStorage.clear();
     return onValue();
   });
 };
 
 // TODO: handle the event triggered on the window and emit a value only when the window has received the event
-export const getItemFromLocalStorageForKey = (key: string): Prophecy<string, ItemNotFoundFromLocalStorageIssue> => {
-  return new Prophecy((onValue, onIssue) => {
+export const getItemFromLocalStorageForKey = (key: string): Future<string, ItemNotFoundFromLocalStorageIssue> => {
+  return new Future((onValue, onIssue) => {
     const item = window.localStorage.getItem(key);
 
     if (item === null) {
@@ -30,8 +30,8 @@ export const getItemFromLocalStorageForKey = (key: string): Prophecy<string, Ite
 
 // TODO: handle the event triggered on the window and emit a value only when the window has received the event
 export const setItemToLocalStorageForKey = (key: string) => {
-  return (value: string): Prophecy<string, never> => {
-    return new Prophecy((onValue) => {
+  return (value: string): Future<string, never> => {
+    return new Future((onValue) => {
       window.localStorage.setItem(key, value);
       return onValue(value);
     });
@@ -40,8 +40,8 @@ export const setItemToLocalStorageForKey = (key: string) => {
 
 // TODO: handle the event triggered on the window and emit a value only when the window has received the event
 export const removeItemFromLocalStorageForKey = (key: string) => {
-  return (value: string): Prophecy<string, never> => {
-    return new Prophecy((onValue) => {
+  return (value: string): Future<string, never> => {
+    return new Future((onValue) => {
       window.localStorage.removeItem(key);
       return onValue(value);
     });

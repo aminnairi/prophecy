@@ -14,7 +14,7 @@ export const withDelay = (options?: WithDelayOptions): Future<void, UnexpectedIs
   const minutesInMilliseconds = minutes * 60 * 1000;
   const hoursInMilliseconds = hours * 3600 * 1000;
 
-  return new Future(onValue => {
+  return Future.from(onValue => {
     const computedMilliseconds = milliseconds + secondsInMilliseconds + minutesInMilliseconds + hoursInMilliseconds;
 
     setTimeout(() => {

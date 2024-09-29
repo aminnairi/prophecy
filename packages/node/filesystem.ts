@@ -21,8 +21,8 @@ export class IsFileAccessibleIssue implements DiscriminatedIssue {
   public constructor(public readonly message: string) {}
 }
 
-export const withBufferForFile = (path: string): Future<Buffer, GetBufferFromFileIssue> => {
-  return new Future((onValue, onIssue) => {
+export const withBufferForFile = (path: string): Future<Buffer, GetBufferFromFileIssue | UnexpectedIssue> => {
+  return Future.from((onValue, onIssue) => {
     readFile(path).then(buffer => {
       onValue(buffer);
     }).catch(error => {
@@ -34,8 +34,8 @@ export const withBufferForFile = (path: string): Future<Buffer, GetBufferFromFil
   });
 };
 
-export const forFileWithAccess = (modes: FileAccess | Array<FileAccess>, path: string): Future<string, IsFileAccessibleIssue> => {
-  return new Future((onValue, onIssue) => {
+export const forFileWithAccess = (modes: FileAccess | Array<FileAccess>, path: string): Future<string, IsFileAccessibleIssue | UnexpectedIssue> => {
+  return Future.from((onValue, onIssue) => {
     const modesNormalized = Array.isArray(modes) ? modes : [modes];
 
     const modesCombined = modesNormalized.reduce((previousMode, currentMode) => {
@@ -65,10 +65,10 @@ export const forFileWithAccess = (modes: FileAccess | Array<FileAccess>, path: s
   });
 };
 
-export const writeStringToPath = (path: string, data: string): Future<never, UnexpectedIssue> => {
-  return new Future((onValue, onIssue) => {
+export const writeStringToPath = (path: string, data: string): Future<void, UnexpectedIssue | UnexpectedIssue> => {
+  return Future.from((onValue, onIssue) => {
     writeFile(path, data).then(() => {
-      onValue(undefined as never);
+      onValue();
     }).catch(error => {
       const errorNormalized = error instanceof Error ? error : new Error(String(error));
       onIssue(new UnexpectedIssue(errorNormalized));
@@ -79,10 +79,10 @@ export const writeStringToPath = (path: string, data: string): Future<never, Une
 };
 
 export const writeToFile = ({ path }: { path: string }) => {
-  return (data: string): Future<never, UnexpectedIssue> => {
-    return new Future((onValue, onIssue) => {
+  return (data: string): Future<void, UnexpectedIssue | UnexpectedIssue> => {
+    return Future.from((onValue, onIssue) => {
       writeFile(path, data).then(() => {
-        onValue(undefined as never);
+        onValue();
       }).catch(error => {
         const errorNormalized = error instanceof Error ? error : new Error(String(error));
         onIssue(new UnexpectedIssue(errorNormalized));

@@ -1,5 +1,5 @@
-import { Prophecy } from "@prophecy/core";
-import { DiscriminatedIssue, kind } from "@prophecy/issue";
+import { Future } from "@prophecy/core";
+import { DiscriminatedIssue, UnexpectedIssue, kind } from "@prophecy/issue";
 
 export class VibrateInvalidArgumentIssue implements DiscriminatedIssue {
   public readonly [kind] = "VibrateInvalidArgumentIssue";
@@ -11,8 +11,8 @@ export class VibrationUnsupportedIssue implements DiscriminatedIssue {
   public readonly [kind] = "VibrationUnsupportedIssue";
 }
 
-export const vibrationSupported = (): Prophecy<void, VibrationUnsupportedIssue> => {
-  return new Prophecy((onValue, onIssue) => {
+export const vibrationSupported = (): Future<void, VibrationUnsupportedIssue | UnexpectedIssue> => {
+  return Future.from((onValue, onIssue) => {
     if (typeof window !== "object" || window === null || typeof window.navigator !== "object" || window.navigator === null || typeof window.navigator.vibrate !== "function") {
       return onIssue(new VibrationUnsupportedIssue);
     }
@@ -21,9 +21,9 @@ export const vibrationSupported = (): Prophecy<void, VibrationUnsupportedIssue> 
   });
 }; 
 
-export const vibrate = (pattern: VibratePattern): Prophecy<VibratePattern, VibrationUnsupportedIssue | VibrateInvalidArgumentIssue> => {
-  return vibrationSupported().andThen(() => {
-    return new Prophecy((onValue, onIssue) => {
+export const vibrate = (pattern: VibratePattern): Future<VibratePattern, VibrationUnsupportedIssue | VibrateInvalidArgumentIssue | UnexpectedIssue> => {
+  return vibrationSupported().and(() => {
+    return Future.from((onValue, onIssue) => {
       const hasValidArguments = navigator.vibrate(pattern);
 
       if (!hasValidArguments) {
@@ -35,9 +35,9 @@ export const vibrate = (pattern: VibratePattern): Prophecy<VibratePattern, Vibra
   });
 };
 
-export const cancelVibration = (): Prophecy<void, VibrationUnsupportedIssue> => {
-  return vibrationSupported().andThen(() => {
-    return new Prophecy((onValue) => {
+export const cancelVibration = (): Future<void, VibrationUnsupportedIssue | UnexpectedIssue> => {
+  return vibrationSupported().and(() => {
+    return Future.from((onValue) => {
       navigator.vibrate(0);
       return onValue();
     });

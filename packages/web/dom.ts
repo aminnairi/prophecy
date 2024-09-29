@@ -1,5 +1,5 @@
 import { Future } from "@prophecy/core";
-import { DiscriminatedIssue, kind } from "@prophecy/issue";
+import { DiscriminatedIssue, UnexpectedIssue, kind } from "@prophecy/issue";
 
 export enum EventKind {
   Click = "click",
@@ -112,8 +112,8 @@ export class ElementNotInputIssue implements DiscriminatedIssue {
   public readonly [kind] = "ElementNotInputIssue";
 }
 
-export const forId = (identifier: string): Future<HTMLElement, ElementNotFoundIssue> => {
-  return new Future((onValue, onIssue) => {
+export const forId = (identifier: string): Future<HTMLElement, ElementNotFoundIssue | UnexpectedIssue> => {
+  return Future.from((onValue, onIssue) => {
     const element = document.getElementById(identifier);
 
     if (element === null) {
@@ -124,8 +124,8 @@ export const forId = (identifier: string): Future<HTMLElement, ElementNotFoundIs
   });
 };
 
-export const forEvent = (eventName: string) => (element: HTMLElement): Future<Event, never> => {
-  return new Future((onValue) => {
+export const forEvent = (eventName: string) => (element: HTMLElement): Future<Event, UnexpectedIssue> => {
+  return Future.from((onValue) => {
     element.addEventListener(eventName, (event) => {
       onValue(event);
     });
@@ -134,8 +134,8 @@ export const forEvent = (eventName: string) => (element: HTMLElement): Future<Ev
   });
 };
 
-export const getInputValue = (event: Event): Future<string, ElementNotInputIssue> => {
-  return new Future((onValue, onIssue) => {
+export const getInputValue = (event: Event): Future<string, ElementNotInputIssue | UnexpectedIssue> => {
+  return Future.from((onValue, onIssue) => {
     if (event.target instanceof HTMLInputElement) {
       return onValue(event.target.value);
     }
@@ -144,8 +144,8 @@ export const getInputValue = (event: Event): Future<string, ElementNotInputIssue
   });
 };
 
-export const setTextContent = (textContent: string) => (element: HTMLElement): Future<HTMLElement, never> => {
-  return new Future((onValue) => {
+export const setTextContent = (textContent: string) => (element: HTMLElement): Future<HTMLElement, UnexpectedIssue> => {
+  return Future.from((onValue) => {
     element.textContent = textContent;
 
     return onValue(element);

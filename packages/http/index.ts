@@ -11,7 +11,7 @@ export class RequestCanceledIssue implements DiscriminatedIssue {
 }
 
 export const sendRequest = (url: string, options: RequestInit): Future<string, BadResponseIssue | RequestCanceledIssue | UnexpectedIssue> => {
-  return new Future((onValue, onIssue) => {
+  return Future.from<string, BadResponseIssue | RequestCanceledIssue | UnexpectedIssue>((onValue, onIssue) => {
     fetch(url, options).then(response => {
       if (response.ok) {
         return response.text().then(text => {
@@ -24,15 +24,13 @@ export const sendRequest = (url: string, options: RequestInit): Future<string, B
     }).catch(error => {
       if (error instanceof Error) {
         if (error.name === "AbortError") {
-          onIssue(new RequestCanceledIssue);
-          return;
+          return onIssue(new RequestCanceledIssue);
         }
 
-        onIssue(new UnexpectedIssue(error));
-        return
+        return onIssue(new UnexpectedIssue(error));
       }
 
-      onIssue(new UnexpectedIssue(new Error(error)));
+      return onIssue(new UnexpectedIssue(new Error(error)));
     }); 
 
     return null;
@@ -48,8 +46,8 @@ export const sendAbortableRequest = ({ url, ...options }: RequestInit & { url: s
   }
 }
 
-export const createAbortController = (): Future<AbortController, never> => {
-  return new Future(onValue => {
+export const createAbortController = (): Future<AbortController, UnexpectedIssue> => {
+  return Future.from(onValue => {
     return onValue(new AbortController);
   });
 };
@@ -63,11 +61,11 @@ export interface AbortAtOptions {
 
 export interface AbortAtOutput {
   abortController: AbortController,
-  stopNextAbort: <Value>(value: Value) => Future<Value, never>
+  stopNextAbort: <Value>(value: Value) => Future<Value, UnexpectedIssue>
 }
 
 export const abortAt = (options?: AbortAtOptions) => (abortController: AbortController): Future<AbortAtOutput, UnexpectedIssue> => {
-  return new Future(onValue => {
+  return Future.from(onValue => {
     const { milliseconds, seconds, minutes, hours } = {
       milliseconds: 0,
       seconds: 0,
@@ -85,8 +83,8 @@ export const abortAt = (options?: AbortAtOptions) => (abortController: AbortCont
       abortController.abort();
     }, delayInMilliseconds);
 
-    const stopNextAbort = <Value>(value: Value): Future<Value, never> => {
-      return new Future((onValue) => {
+    const stopNextAbort = <Value>(value: Value): Future<Value, UnexpectedIssue> => {
+      return Future.from((onValue) => {
         clearTimeout(timeoutIdentifier);
         return onValue(value);
       });

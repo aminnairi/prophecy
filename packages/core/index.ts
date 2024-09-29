@@ -13,23 +13,12 @@ export type Transform<Value, NewValue> = (value: Value) => NewValue
 export type Fork<Value> = (value: Value) => null
 
 export class Future<Value, Issue extends DiscriminatedIssue> {
-  constructor(private readonly observer: Observer<Value, Issue>) { }
+  private constructor(private readonly observer: Observer<Value, Issue>) { }
 
-  public static fromValue<Value, Issue extends DiscriminatedIssue>(getValue: () => Value): Future<Value, Issue | UnexpectedIssue> {
+  public static from<Value, Issue extends DiscriminatedIssue>(start: Observer<Value, Issue>): Future<Value, Issue | UnexpectedIssue> {
     return new Future<Value, Issue | UnexpectedIssue>((onValue, onIssue) => {
       try {
-        return onValue(getValue());
-      } catch (error) {
-        const unexpectedIssue = error instanceof Error ? new UnexpectedIssue(error) : new UnexpectedIssue(new Error(String(error)));
-        return onIssue(unexpectedIssue);
-      }
-    });
-  }
-
-  public static fromIssue<Value, Issue extends DiscriminatedIssue>(getIssue: () => Issue): Future<Value, Issue | UnexpectedIssue> {
-    return new Future<Value, Issue | UnexpectedIssue>((onValue, onIssue) => {
-      try {
-        return onIssue(getIssue());
+        return start(onValue, onIssue);
       } catch (error) {
         const unexpectedIssue = error instanceof Error ? new UnexpectedIssue(error) : new UnexpectedIssue(new Error(String(error)));
         return onIssue(unexpectedIssue);

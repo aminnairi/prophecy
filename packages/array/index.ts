@@ -1,5 +1,5 @@
 import { Future } from "@prophecy/core";
-import { DiscriminatedIssue, kind } from "@prophecy/issue";
+import { DiscriminatedIssue, UnexpectedIssue, kind } from "@prophecy/issue";
 
 export class GetArrayItemAtIndexIssue<Item> implements DiscriminatedIssue {
   public readonly [kind] = "GetArrayItemAtIndexIssue";
@@ -8,9 +8,9 @@ export class GetArrayItemAtIndexIssue<Item> implements DiscriminatedIssue {
 }
 
 export const getArrayItemAt = (index: number) => {
-  return <Item>(prophecy: Future<Array<Item>, GetArrayItemAtIndexIssue<Item>>) => {
-    return prophecy.andThen(items => {
-      return new Future((onValue, onIssue) => {
+  return <Item>(prophecy: Future<Array<Item>, UnexpectedIssue>): Future<Item, GetArrayItemAtIndexIssue<Item> | UnexpectedIssue> => {
+    return prophecy.and(items => {
+      return Future.from((onValue, onIssue) => {
         const item = items.at(index);
 
         if (item === undefined) {

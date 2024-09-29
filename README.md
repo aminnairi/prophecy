@@ -83,6 +83,8 @@ Package | Description
 - Create a documentation website
 - Publish all packages
 - Add a lot of documentation & comments in the source code (like a sea of comment, mediterranean sea level)
+- Rename `fork` into `parallel`
+- Create a `concurrently` method to run multiple `Future` and get back an array of all of the result of these
 - Add support for the Bluetooth Web API
 - Add support for the USB Web API
 - Add support for the Battery Web API

@@ -48,14 +48,14 @@ export interface HttpServerListenOptions {
 }
 
 export const withServer = (): Future<Server, UnexpectedIssue> => {
-  return new Future(onValue => {
+  return Future.from(onValue => {
     return onValue(createServer()); 
   });
 };
 
 export const withRoute = (method: string, url: string, handler: (request: HttpRequest) => HttpResponse) => {
   return (server: Server): Future<Server, UnexpectedIssue> => {
-    return new Future((onValue, onIssue) => {
+    return Future.from((onValue, onIssue) => {
       server.on("request", (httpRequest, httpResponse) => {
         if (httpRequest.method === method && httpRequest.url === url) {
           const response = handler({
@@ -75,7 +75,7 @@ export const withRoute = (method: string, url: string, handler: (request: HttpRe
 
 export const listen = ({ port, host }: HttpServerListenOptions) => {
   return (server: Server): Future<HttpServerListenOptions, UnexpectedIssue | PortInfiniteIssue | PortNotNumberIssue | PortNegativeIssue> => {
-    return new Future((onValue, onIssue) => {
+    return Future.from((onValue, onIssue) => {
       if (!Number.isFinite(port)) {
         return onIssue(new PortInfiniteIssue);
       }

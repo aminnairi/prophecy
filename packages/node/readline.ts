@@ -9,7 +9,7 @@ export class ReadlineIssue implements DiscriminatedIssue {
 }
 
 export const question = ({ question, ...options }: ReadLineOptions & { question: string }): Future<string, ReadlineIssue | UnexpectedIssue> => {
-  return new Future((onValue, onIssue) => {
+  return Future.from((onValue, onIssue) => {
     const readlineInterface = createInterface(options);
 
     readlineInterface.question(question).then(answer => {

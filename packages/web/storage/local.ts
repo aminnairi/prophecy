@@ -8,17 +8,17 @@ export class ItemNotFoundFromLocalStorageIssue implements DiscriminatedIssue {
 }
 
 // TODO: handle the event triggered on the window and emit a value only when the window has received the event
-export const clearLocalStorage = (): Future<void, never> => {
+export const clearStorage = ({ storage }: { storage: Storage }): Future<void, never> => {
   return new Future((onValue) => {
-    window.localStorage.clear();
+    storage.clear();
     return onValue();
   });
 };
 
 // TODO: handle the event triggered on the window and emit a value only when the window has received the event
-export const getItemFromLocalStorageForKey = (key: string): Future<string, ItemNotFoundFromLocalStorageIssue> => {
+export const getStorageItem = ({ storage, key }: { key: string, storage: Storage }): Future<string, ItemNotFoundFromLocalStorageIssue> => {
   return new Future((onValue, onIssue) => {
-    const item = window.localStorage.getItem(key);
+    const item = storage.getItem(key);
 
     if (item === null) {
       return onIssue(new ItemNotFoundFromLocalStorageIssue(key));
@@ -29,20 +29,20 @@ export const getItemFromLocalStorageForKey = (key: string): Future<string, ItemN
 };
 
 // TODO: handle the event triggered on the window and emit a value only when the window has received the event
-export const setItemToLocalStorageForKey = (key: string) => {
+export const setStorageItem = ({ storage, key }: { key: string, storage: Storage }) => {
   return (value: string): Future<string, never> => {
     return new Future((onValue) => {
-      window.localStorage.setItem(key, value);
+      storage.setItem(key, value);
       return onValue(value);
     });
   };
 };
 
 // TODO: handle the event triggered on the window and emit a value only when the window has received the event
-export const removeItemFromLocalStorageForKey = (key: string) => {
+export const removeStorageItem = ({ storage, key }: { key: string, storage: Storage }) => {
   return (value: string): Future<string, never> => {
     return new Future((onValue) => {
-      window.localStorage.removeItem(key);
+      storage.removeItem(key);
       return onValue(value);
     });
   };

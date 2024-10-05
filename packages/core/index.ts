@@ -12,10 +12,10 @@ export type Transform<Value, NewValue> = (value: Value) => NewValue
 
 export type Fork<Value> = (value: Value) => null
 
-export class Future<Value, Issue extends DiscriminatedIssue> {
+export class Future<Value = never, Issue extends DiscriminatedIssue = UnexpectedIssue> {
   private constructor(private readonly observer: Observer<Value, Issue>) { }
 
-  public static from<Value, Issue extends DiscriminatedIssue>(start: Observer<Value, Issue>): Future<Value, Issue | UnexpectedIssue> {
+  public static from<Value = never, Issue extends DiscriminatedIssue = UnexpectedIssue>(start: Observer<Value, Issue>): Future<Value, Issue | UnexpectedIssue> {
     return new Future<Value, Issue | UnexpectedIssue>((onValue, onIssue) => {
       try {
         return start(onValue, onIssue);
@@ -29,11 +29,11 @@ export class Future<Value, Issue extends DiscriminatedIssue> {
   public and<NewValue, NewIssue extends DiscriminatedIssue>(update: Update<Value, NewValue, NewIssue>): Future<NewValue, Issue | NewIssue | UnexpectedIssue> {
     return new Future((onValue, onIssue) => {
       try {
-        return this.run({
-          onIssue: onIssue,
-          onValue: value => update(value).run({
-            onIssue,
-            onValue,
+        return this.on({
+          issue: onIssue,
+          value: value => update(value).on({
+            issue: onIssue,
+            value: onValue,
           })
         });
       } catch (error) {
@@ -45,18 +45,18 @@ export class Future<Value, Issue extends DiscriminatedIssue> {
 
   public recover<IssueKind extends Issue[typeof kind], RecoveredIssue extends Extract<Issue, { [kind]: IssueKind }>, IssueWithoutExcludedIssue extends Exclude<Issue, RecoveredIssue>, NewValue, NewIssue extends DiscriminatedIssue>({ issue, remediation }: { issue: IssueKind, remediation: (issue: RecoveredIssue) => Future<NewValue, NewIssue> }): Future<Value | NewValue, IssueWithoutExcludedIssue | NewIssue> {
     return new Future((onValue, onIssue) => {
-      this.run({
-        onIssue: nextIssue => {
+      this.on({
+        issue: nextIssue => {
           if (nextIssue[kind] === issue) {
-            return remediation(nextIssue as unknown as RecoveredIssue).run({
-              onIssue,
-              onValue
+            return remediation(nextIssue as unknown as RecoveredIssue).on({
+              issue: onIssue,
+              value: onValue
             });
           }
 
           return onIssue(nextIssue as unknown as IssueWithoutExcludedIssue);
         },
-        onValue
+        value: onValue
       });
       return null;
     });
@@ -71,8 +71,8 @@ export class Future<Value, Issue extends DiscriminatedIssue> {
     });
   }
 
-  public run({ onIssue, onValue = () => null }: { onIssue: OnIssue<Issue>, onValue?: OnValue<Value> }): null {
-    return this.observer(onValue, onIssue);
+  public on({ issue, value = () => null }: { issue: OnIssue<Issue>, value?: OnValue<Value> }): null {
+    return this.observer(value, issue);
   }
 }
 

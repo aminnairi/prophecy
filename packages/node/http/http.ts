@@ -69,8 +69,8 @@ export const withRoute = (method: string, url: string, handler: (request: HttpRe
 };
 
 export const listen = ({ port, host }: HttpServerListenOptions) => {
-  return (server: Server): Future<HttpServerListenOptions, UnexpectedIssue | PortInfiniteIssue | PortNotNumberIssue | PortNegativeIssue> => {
-    return Future.from((onValue, onIssue) => {
+  return (server: Server) => {
+    return Future.from<HttpServerListenOptions, PortInfiniteIssue | PortNotNumberIssue | PortNegativeIssue>((onValue, onIssue) => {
       if (!Number.isFinite(port)) {
         return onIssue(new PortInfiniteIssue);
       }

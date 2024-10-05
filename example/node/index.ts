@@ -15,8 +15,8 @@ createAbortController()
   })
   .and(toStringifiedJson({ pretty: true }))
   .and(writeToFile({ path: "users.json" }))
-  .run({
-    onIssue: match({
+  .on({
+    issue: match({
       UnexpectedIssue: () => console.error("Failed to instantiate an abort controller"),
       BadResponseIssue: () => console.error("Bad response from the server."),
       RequestCanceledIssue: () => console.error("Request canceled, nothing to do."),

@@ -1,4 +1,4 @@
-import { Future, DiscriminatedIssue, UnexpectedIssue, kind  } from "@prophecy/future";
+import { Future, DiscriminatedIssue, kind  } from "@prophecy/future";
 
 export class IndexNotFoundIssue<Item> implements DiscriminatedIssue {
   public readonly [kind] = "IndexNotFoundIssue";
@@ -7,9 +7,9 @@ export class IndexNotFoundIssue<Item> implements DiscriminatedIssue {
 }
 
 export const getArrayItemAt = (index: number) => {
-  return <Item>(prophecy: Future<Array<Item>, UnexpectedIssue>): Future<Item, IndexNotFoundIssue<Item> | UnexpectedIssue> => {
+  return <Item>(prophecy: Future<Array<Item>>) => {
     return prophecy.and(items => {
-      return Future.from((onValue, onIssue) => {
+      return Future.from<Item, IndexNotFoundIssue<Item>>((onValue, onIssue) => {
         const item = items.at(index);
 
         if (item === undefined) {

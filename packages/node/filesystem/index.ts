@@ -20,8 +20,8 @@ export class PathAccessIssue implements DiscriminatedIssue {
   public constructor(public readonly message: string) {}
 }
 
-export const withBufferForFile = (path: string): Future<Buffer, ReadFileIssue | UnexpectedIssue> => {
-  return Future.from((onValue, onIssue) => {
+export const withBufferForFile = (path: string) => {
+  return Future.from<Buffer, ReadFileIssue>((onValue, onIssue) => {
     readFile(path).then(buffer => {
       onValue(buffer);
     }).catch(error => {
@@ -33,8 +33,8 @@ export const withBufferForFile = (path: string): Future<Buffer, ReadFileIssue | 
   });
 };
 
-export const pathAccessibleForMode = (modes: PathAccess | Array<PathAccess>, path: string): Future<string, PathAccessIssue | UnexpectedIssue> => {
-  return Future.from((onValue, onIssue) => {
+export const pathAccessibleForMode = (modes: PathAccess | Array<PathAccess>, path: string) => {
+  return Future.from<string, PathAccessIssue>((onValue, onIssue) => {
     const modesNormalized = Array.isArray(modes) ? modes : [modes];
 
     const modesCombined = modesNormalized.reduce((previousMode, currentMode) => {

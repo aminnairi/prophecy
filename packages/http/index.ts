@@ -9,7 +9,7 @@ export class RequestCanceledIssue implements DiscriminatedIssue {
   public readonly [kind] = "RequestCanceledIssue";
 }
 
-export const sendRequest = (url: string, options: RequestInit): Future<string, BadResponseIssue | RequestCanceledIssue | UnexpectedIssue> => {
+export const sendRequest = (url: string, options: RequestInit) => {
   return Future.from<string, BadResponseIssue | RequestCanceledIssue | UnexpectedIssue>((onValue, onIssue) => {
     fetch(url, options).then(response => {
       if (response.ok) {

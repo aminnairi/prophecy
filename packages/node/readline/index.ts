@@ -1,4 +1,4 @@
-import { Future, DiscriminatedIssue, UnexpectedIssue, kind } from "@prophecy/future";
+import { Future, DiscriminatedIssue, kind } from "@prophecy/future";
 import { createInterface } from "readline/promises";
 import { ReadLineOptions } from "readline";
 
@@ -7,8 +7,8 @@ export class ReadlineIssue implements DiscriminatedIssue {
   public constructor(public readonly error: Error) {}
 }
 
-export const question = ({ message, ...options }: ReadLineOptions & { message: string }): Future<string, ReadlineIssue | UnexpectedIssue> => {
-  return Future.from((onValue, onIssue) => {
+export const question = ({ message, ...options }: ReadLineOptions & { message: string }) => {
+  return Future.from<string, ReadlineIssue>((onValue, onIssue) => {
     const readlineInterface = createInterface(options);
 
     readlineInterface.question(message).then(answer => {

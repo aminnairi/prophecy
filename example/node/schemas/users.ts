@@ -1,4 +1,4 @@
-import { Future, DiscriminatedIssue, UnexpectedIssue, kind  } from "@prophecy/future";
+import { Future, DiscriminatedIssue, kind  } from "@prophecy/future";
 import { ZodError, z } from "zod";
 
 export class UserValidationIssue implements DiscriminatedIssue {
@@ -19,8 +19,8 @@ export const userSchema = z.object({
 
 export const usersSchema = z.array(userSchema);
 
-export const toUsers = (data: unknown): Future<Users, UserValidationIssue | UnexpectedIssue> => {
-  return Future.from((onValue, onIssue) => {
+export const toUsers = (data: unknown) => {
+  return Future.from<Users, UserValidationIssue>((onValue, onIssue) => {
     const validation = usersSchema.safeParse(data);
 
     if (validation.success) {
@@ -31,8 +31,8 @@ export const toUsers = (data: unknown): Future<Users, UserValidationIssue | Unex
   });
 }
 
-export const toJson = (data: string): Future<unknown, JsonParseIssue | UnexpectedIssue> => {
-  return Future.from((onValue, onIssue) => {
+export const toJson = (data: string) => {
+  return Future.from<unknown, JsonParseIssue>((onValue, onIssue) => {
     try {
       return onValue(JSON.parse(data));
     } catch (error) {
@@ -42,8 +42,8 @@ export const toJson = (data: string): Future<unknown, JsonParseIssue | Unexpecte
   });
 }
 
-export const toStringifiedJson = ({ pretty }: { pretty: boolean}) => (data: unknown): Future<string, UnexpectedIssue> => {
-  return Future.from(onValue => {
+export const toStringifiedJson = ({ pretty }: { pretty: boolean}) => (data: unknown) => {
+  return Future.from<string>(onValue => {
     return onValue(JSON.stringify(data, null, pretty ? 2 : 0));
   });
 };

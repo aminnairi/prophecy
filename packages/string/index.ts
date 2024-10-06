@@ -1,7 +1,7 @@
-import { Future, UnexpectedIssue } from "@prophecy/future";
+import { Future } from "@prophecy/future";
 
 export const stringFilledOr = (fallback: string) => {
-  return (text: string): Future<string, UnexpectedIssue> => {
+  return (text: string): Future<string> => {
     return Future.from(onValue => {
       if (text.trim().length === 0) {
         return onValue(fallback);
@@ -12,13 +12,13 @@ export const stringFilledOr = (fallback: string) => {
   };
 };
 
-export const whenEmpty = (fallback: string) => (text: string): Future<string, UnexpectedIssue> => {
+export const whenEmpty = (fallback: string) => (text: string): Future<string> => {
   return Future.from(onValue => {
     return onValue(text.trim().length === 0 ? fallback : text);
   });
 };
 
-export const asString = (data: unknown): Future<string, UnexpectedIssue> => {
+export const asString = (data: unknown): Future<string> => {
   return Future.from(onValue => {
     return onValue(String(data));
   });

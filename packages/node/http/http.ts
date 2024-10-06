@@ -1,4 +1,4 @@
-import { Future, DiscriminatedIssue, UnexpectedIssue, kind } from "@prophecy/future";
+import { Future, DiscriminatedIssue, kind } from "@prophecy/future";
 import { Server, createServer } from "http";
 
 export class PortNegativeIssue implements DiscriminatedIssue {
@@ -41,15 +41,15 @@ export interface HttpServerListenOptions {
   host: string
 }
 
-export const withServer = (): Future<Server, UnexpectedIssue> => {
-  return Future.from(onValue => {
+export const withServer = () => {
+  return Future.from<Server>(onValue => {
     return onValue(createServer()); 
   });
 };
 
 export const withRoute = (method: string, url: string, handler: (request: HttpRequest) => HttpResponse) => {
-  return (server: Server): Future<Server, UnexpectedIssue> => {
-    return Future.from((onValue, onIssue) => {
+  return (server: Server) => {
+    return Future.from<Server>(onValue => {
       server.on("request", (httpRequest, httpResponse) => {
         if (httpRequest.method === method && httpRequest.url === url) {
           const response = handler({

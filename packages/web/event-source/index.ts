@@ -1,4 +1,4 @@
-import { Future, DiscriminatedIssue, UnexpectedIssue, kind  } from "@prophecy/future";
+import { Future, DiscriminatedIssue, kind  } from "@prophecy/future";
 
 /** @override */
 export interface MessageEvent {
@@ -12,8 +12,8 @@ export class EventSourceIssue implements DiscriminatedIssue {
 
 export type EventSourceEventHandler<Value> = (event: MessageEvent) => Value;
 
-export const withEventSource = (url: string, options?: EventSourceInit): Future<EventSource, UnexpectedIssue | EventSourceIssue> => {
-  return Future.from((onValue, onIssue) => {
+export const withEventSource = (url: string, options?: EventSourceInit) => {
+  return Future.from<EventSource, EventSourceIssue>((onValue, onIssue) => {
     const eventSource = new EventSource(url, options);
 
     eventSource.addEventListener("error", error => {
@@ -25,8 +25,8 @@ export const withEventSource = (url: string, options?: EventSourceInit): Future<
 };
 
 export const forEventSourceEvent = <Value>(eventName: string, handler: EventSourceEventHandler<Value>) => {
-  return (eventSource: EventSource): Future<Value, UnexpectedIssue>  => {
-    return Future.from(onValue => {
+  return (eventSource: EventSource) => {
+    return Future.from<Value>(onValue => {
       eventSource.addEventListener(eventName, event => {
         const value = handler(event);
         onValue(value);
@@ -41,8 +41,8 @@ export const forEventSourceMessageEvent = <Value>(handler: EventSourceEventHandl
   return forEventSourceEvent("message", handler);
 };
 
-export const closeEventSource = (eventSource: EventSource): Future<EventSource, UnexpectedIssue> => {
-  return Future.from((onValue) => {
+export const closeEventSource = (eventSource: EventSource) => {
+  return Future.from<EventSource>((onValue) => {
     eventSource.close();
     return onValue(eventSource);
   });

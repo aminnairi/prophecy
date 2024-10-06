@@ -1,5 +1,11 @@
 # @prophecy/node/http
 
+## Installation
+
+```bash
+npm install @prophecy/node
+```
+
 ## Usage
 
 ### Create a server

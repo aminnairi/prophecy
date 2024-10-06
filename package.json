@@ -1,8 +1,7 @@
 {
   "private": true,
   "workspaces": [
-    "packages/core",
-    "packages/issue",
+    "packages/future",
     "packages/web",
     "packages/node",
     "packages/string",

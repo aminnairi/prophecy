@@ -1,5 +1,4 @@
-import { Future } from "@prophecy/core";
-import { DiscriminatedIssue, UnexpectedIssue, kind, match } from "@prophecy/issue";
+import { Future, DiscriminatedIssue, UnexpectedIssue, kind } from "@prophecy/future";
 import { Server, createServer } from "http";
 
 export class PortNegativeIssue implements DiscriminatedIssue {

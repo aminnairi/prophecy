@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "@prophecy/core",
+  "name": "@prophecy/future",
   "description": "Shape your future, leave uncertainty behind",
   "devDependencies": {
     "vite": "5.4.7"

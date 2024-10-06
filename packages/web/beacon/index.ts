@@ -1,5 +1,4 @@
-import { Future } from "@prophecy/core";
-import { UnexpectedIssue } from "@prophecy/issue";
+import { Future, UnexpectedIssue } from "@prophecy/future";
 
 export const sendBeacon = <Data extends BodyInit | undefined | null>({ navigator, data, url }: { navigator: Navigator, url: string, data?: Data }): Future<Data | undefined, UnexpectedIssue> => {
   return Future.from(onValue => {

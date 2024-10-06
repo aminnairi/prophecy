@@ -1,5 +1,4 @@
-import { Future } from "@prophecy/core";
-import { DiscriminatedIssue, UnexpectedIssue, kind } from "@prophecy/issue";
+import { Future, DiscriminatedIssue, UnexpectedIssue, kind } from "@prophecy/future";
 import { readFile, access, constants, writeFile } from "fs/promises";
 
 export enum FileAccess {

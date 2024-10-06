@@ -1,5 +1,4 @@
-import { Future } from "@prophecy/core";
-import { UnexpectedIssue } from "@prophecy/issue";
+import { Future, UnexpectedIssue } from "@prophecy/future";
 
 export interface WithDelayOptions {
   milliseconds?: number,
@@ -8,7 +7,15 @@ export interface WithDelayOptions {
   hours?: number 
 }
 
-export const withDelay = (options?: WithDelayOptions): Future<void, UnexpectedIssue> => {
+export interface WithDelayOutput {
+  total: number,
+  milliseconds: number,
+  seconds: number,
+  minutes: number,
+  hours: number
+}
+
+export const withDelay = (options?: WithDelayOptions): Future<WithDelayOutput, UnexpectedIssue> => {
   const { milliseconds, seconds, minutes, hours } = { milliseconds: 0, seconds: 0, minutes: 0, hours: 0, ...options ?? {} };
   const secondsInMilliseconds = seconds * 1000;
   const minutesInMilliseconds = minutes * 60 * 1000;
@@ -18,7 +25,13 @@ export const withDelay = (options?: WithDelayOptions): Future<void, UnexpectedIs
     const computedMilliseconds = milliseconds + secondsInMilliseconds + minutesInMilliseconds + hoursInMilliseconds;
 
     setTimeout(() => {
-      onValue();
+      onValue({
+        total: computedMilliseconds,
+        milliseconds,
+        seconds,
+        minutes,
+        hours
+      });
     }, computedMilliseconds);
 
     return null;

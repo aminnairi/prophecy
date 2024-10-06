@@ -1,5 +1,4 @@
-import { Future } from "@prophecy/core";
-import { DiscriminatedIssue, UnexpectedIssue, kind } from "@prophecy/issue";
+import { Future, DiscriminatedIssue, UnexpectedIssue, kind  } from "@prophecy/future";
 
 export class VibrateInvalidArgumentIssue implements DiscriminatedIssue {
   public readonly [kind] = "VibrateInvalidArgumentIssue";

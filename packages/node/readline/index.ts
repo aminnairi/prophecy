@@ -7,11 +7,11 @@ export class ReadlineIssue implements DiscriminatedIssue {
   public constructor(public readonly error: Error) {}
 }
 
-export const question = ({ question, ...options }: ReadLineOptions & { question: string }): Future<string, ReadlineIssue | UnexpectedIssue> => {
+export const question = ({ message, ...options }: ReadLineOptions & { message: string }): Future<string, ReadlineIssue | UnexpectedIssue> => {
   return Future.from((onValue, onIssue) => {
     const readlineInterface = createInterface(options);
 
-    readlineInterface.question(question).then(answer => {
+    readlineInterface.question(message).then(answer => {
       readlineInterface.close();
       onValue(answer);
     }).catch(error => {

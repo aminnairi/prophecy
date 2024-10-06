@@ -72,7 +72,7 @@ Package | Description
 
 ## What's left to do?
 
-- Include issues and core packages into a `future` package
+- Extract the `State` class into its own package from `future` to `state`
 - Add more packages and packages functions
 - Document the whole API once it gets out of the real-world testing phase
 - Add support for command line interface using `readline`

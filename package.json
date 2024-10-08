@@ -2,6 +2,7 @@
   "private": true,
   "workspaces": [
     "packages/future",
+    "packages/state",
     "packages/web",
     "packages/node",
     "packages/string",

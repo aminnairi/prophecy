@@ -35,6 +35,23 @@ export type Transform<Value, NewValue> = (value: Value) => NewValue
 
 export type Fork<Value> = (value: Value) => null
 
+export type ScalarValue = 
+  | string 
+  | number 
+  | boolean 
+  | bigint 
+  | symbol 
+  | null 
+  | undefined 
+  | ScalarArray 
+  | ScalarRecord;
+
+export type ScalarArray = Array<ScalarValue>
+
+export type ScalarRecord = {
+  [key: string | number | symbol]: ScalarValue;
+}
+
 export class Future<Value = never, Issue extends DiscriminatedIssue = UnexpectedIssue> {
   private constructor(private readonly observer: Start<Value, Issue>) { }
 
@@ -46,6 +63,18 @@ export class Future<Value = never, Issue extends DiscriminatedIssue = Unexpected
         const unexpectedIssue = error instanceof Error ? new UnexpectedIssue(error) : new UnexpectedIssue(new Error(String(error)));
         return emitIssue(unexpectedIssue);
       }
+    });
+  }
+
+  public static fromValue<Value extends ScalarValue>(value: Value) {
+    return Future.from<Value>(emitValue => {
+      return emitValue(value);
+    });
+  }
+
+  public static fromIssue<GenericIssue extends DiscriminatedIssue>(issue: GenericIssue) {
+    return Future.from<never, GenericIssue>((emitValue, emitIssue) => {
+      return emitIssue(issue);
     });
   }
 
@@ -96,38 +125,5 @@ export class Future<Value = never, Issue extends DiscriminatedIssue = Unexpected
 
   public on({ issue, value = () => null }: { issue: OnIssue<Issue>, value?: OnValue<Value> }): null {
     return this.observer(value, issue);
-  }
-}
-
-export class State<Value> {
-  private observers: Array<OnValue<Value>> = [];
-
-  constructor(private value: Value) { }
-
-  public set(newValue: Value): void {
-    this.value = newValue;
-    this.notifyObservers();
-  }
-
-  public next(update: (value: Value) => Value): null {
-    this.value = update(this.value);
-    this.notifyObservers();
-
-    return null;
-  }
-
-  public on(notify: OnValue<Value>): null {
-    this.observers.push(notify);
-    notify(this.value);
-
-    return null;
-  }
-
-  private notifyObservers(): null {
-    this.observers.forEach(observer => {
-      observer(this.value);
-    });
-
-    return null;
   }
 }

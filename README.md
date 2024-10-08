@@ -86,6 +86,7 @@ Package | Description
 - Add a lot of documentation & comments in the source code (like a sea of comment, mediterranean sea level)
 - Rename `fork` into `parallel`
 - Create a `concurrently` method to run multiple `Future` and get back an array of all of the result of these
+- Create a `sequence` method to run multiple `Future` and get back an array of all of the result and run them in order
 - Handle server errors and emit them for `@prophecy/node/http`
 - Add support for the Bluetooth Web API
 - Add support for the USB Web API

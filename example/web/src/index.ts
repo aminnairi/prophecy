@@ -1,4 +1,5 @@
-import { State, match } from "@prophecy/future";
+import { match } from "@prophecy/future";
+import { State } from "@prophecy/state";
 import { forId, forEvent, getInputValue, setTextContent, EventKind } from "@prophecy/web/dom";
 import { whenEmpty } from "@prophecy/string";
 

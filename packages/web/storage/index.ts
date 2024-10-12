@@ -1,4 +1,6 @@
-import { Future, DiscriminatedIssue, kind } from "@prophecy/future";
+import { Future } from "@prophecy/future";
+import { kind } from "@prophecy/future/kind";
+import { DiscriminatedIssue } from "@prophecy/future/DiscriminatedIssue";
 
 export class StorageItemNotFoundIssue implements DiscriminatedIssue {
   public readonly [kind] = "StorageItemNotFoundIssue";

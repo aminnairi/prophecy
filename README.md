@@ -72,11 +72,8 @@ Package | Description
 
 ## What's left to do?
 
-- Extract the `State` class into its own package from `future` to `state`
 - Add more packages and packages functions
 - Document the whole API once it gets out of the real-world testing phase
-- Add support for command line interface using `readline`
-- Add support for log messages using the Syslog format
 - Compare this library with RxJS and credit them
 - Compare this library with Effect and credit them
 - Find a cool logo
@@ -84,9 +81,6 @@ Package | Description
 - Create a documentation website
 - Publish all packages
 - Add a lot of documentation & comments in the source code (like a sea of comment, mediterranean sea level)
-- Rename `fork` into `parallel`
-- Create a `concurrently` method to run multiple `Future` and get back an array of all of the result of these
-- Create a `sequence` method to run multiple `Future` and get back an array of all of the result and run them in order
 - Handle server errors and emit them for `@prophecy/node/http`
 - Add support for the Bluetooth Web API
 - Add support for the USB Web API
@@ -100,9 +94,7 @@ Package | Description
 - Add support for the Ambiant Light Sensor Web API
 - Add support for the Magnetometer Web API
 - Add support for the Gyroscope/Accelerometer Web API
-- Add support for the Clipboard Web API
 - Add support for the Screen Orientation Web API
-- Add support for the Session Storage Web API
 - Add support for the NFC Web API
 - Add support for the Operating System Node.js API
 - Add support for the DNS Node.js API

@@ -1,56 +1,12 @@
-export const kind = Symbol("DiscriminatedIssueKind");
-
-export interface DiscriminatedIssue {
-  [kind]: string
-}
-
-export class UnexpectedIssue implements DiscriminatedIssue {
-  public readonly [kind] = "UnexpectedIssue";
-
-  public constructor(public readonly error: Error) {}
-}
-
-export function match<Issue extends DiscriminatedIssue>(patterns: { [Key in Issue[typeof kind]]: (issue: Extract<Issue, { [kind]: Key }>) => unknown }) {
-  return (issue: Issue): null => {
-    const issueKind = issue[kind];
-
-    if (issueKind in patterns) {
-      // @ts-ignore
-      return patterns[issueKind](issue);
-    } else {
-      throw new Error(`No handler for issue kind: ${issueKind}`);
-    }
-  }
-}
-
-export type OnIssue<Issue> = (issue: Issue) => null;
-
-export type OnValue<Value> = (value: Value) => null;
-
-export type Start<Value, Issue> = (emitValue: OnValue<Value>, emitIssue: OnIssue<Issue>) => null;
-
-export type Update<Value, NewValue, NewIssue extends DiscriminatedIssue> = (value: Value) => Future<NewValue, NewIssue>;
-
-export type Transform<Value, NewValue> = (value: Value) => NewValue
-
-export type Fork<Value> = (value: Value) => null
-
-export type ScalarValue = 
-  | string 
-  | number 
-  | boolean 
-  | bigint 
-  | symbol 
-  | null 
-  | undefined 
-  | ScalarArray 
-  | ScalarRecord;
-
-export type ScalarArray = Array<ScalarValue>
-
-export type ScalarRecord = {
-  [key: string | number | symbol]: ScalarValue;
-}
+import { DiscriminatedIssue } from "./DiscriminatedIssue";
+import { Fork } from "./Fork";
+import { kind } from "./kind";
+import { OnIssue } from "./OnIssue";
+import { OnValue } from "./OnValue";
+import { ScalarValue } from "./ScalarValue";
+import { Start } from "./Start";
+import { UnexpectedIssue } from "./UnexpectedIssue";
+import { Update } from "./Update";
 
 export class Future<Value = never, Issue extends DiscriminatedIssue = UnexpectedIssue> {
   private constructor(private readonly observer: Start<Value, Issue>) { }
@@ -114,7 +70,7 @@ export class Future<Value = never, Issue extends DiscriminatedIssue = Unexpected
     });
   }
 
-  public fork(fork: Fork<Value>): Future<Value, Issue | UnexpectedIssue> {
+  public parallel(fork: Fork<Value>): Future<Value, Issue | UnexpectedIssue> {
     return this.and(value => {
       return new Future(emitValue => {
         fork(value);

@@ -1,4 +1,4 @@
-export type OnValue<Value> = (value: Value) => null;
+import { OnValue } from "./OnValue";
 
 export class State<Value> {
   private observers: Array<OnValue<Value>> = [];

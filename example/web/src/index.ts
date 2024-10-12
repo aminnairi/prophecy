@@ -1,4 +1,4 @@
-import { match } from "@prophecy/future";
+import { match } from "@prophecy/future/match";
 import { State } from "@prophecy/state";
 import { forId, forEvent, getInputValue, setTextContent, EventKind } from "@prophecy/web/dom";
 import { whenEmpty } from "@prophecy/string";
@@ -10,7 +10,7 @@ forId("text")
   .and(getInputValue)
   .and(whenEmpty("John DOE"))
   .and(text => forId("output").and(setTextContent(`Hello, ${text}`)))
-  .fork(() => numberOfKeystrokes.next(value => value + 1))
+  .parallel(() => numberOfKeystrokes.next(value => value + 1))
   .on({
     issue: match({
       ElementNotFoundIssue: issue => console.error(`Element with id ${issue.identifier} not found.`),

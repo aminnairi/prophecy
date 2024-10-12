@@ -1,4 +1,5 @@
-import { Future, match } from "@prophecy/future";
+import { Future } from "@prophecy/future";
+import { match } from "@prophecy/future/match";
 import { writeToFile } from "@prophecy/node/filesystem";
 import { abortAt, createAbortController, sendAbortableRequest } from "@prophecy/http";
 import { Users, toJson, toStringifiedJson, toUsers } from "./schemas/users";

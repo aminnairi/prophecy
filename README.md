@@ -3,22 +3,22 @@
 Shape your future, leave uncertainty behind
 
 ```typescript
-import { match } from "@prophecy/issue";
+import { Future } from "@prophecy/future";
+import { match } from "@prophecy/future/match";
 import { writeToFile } from "@prophecy/node/filesystem";
 import { abortAt, createAbortController, sendAbortableRequest } from "@prophecy/http";
-import { toJson, toStringifiedJson, toUsers } from "./schemas/users";
-import { Future } from "@prophecy/core";
+import { Users, toJson, toStringifiedJson, toUsers } from "./schemas/users";
 
 createAbortController()
   .and(abortAt({ seconds: 5 }))
   .and(sendAbortableRequest({ url: "https://jsonplaceholder.typicode.com/users" }))
   .and(toJson)
   .and(toUsers)
-  .recover({ issue: "UserValidationIssue", remediation: () => Future.fromValue(() => []) })
+  .recover({ issue: "UserValidationIssue", remediation: () => Future.from<Users>((onValue) => onValue([])) })
   .and(toStringifiedJson({ pretty: true }))
   .and(writeToFile({ path: "users.json" }))
-  .run({
-    onIssue: match({
+  .on({
+    issue: match({
       UnexpectedIssue: () => console.error("Failed to instantiate an abort controller"),
       BadResponseIssue: () => console.error("Bad response from the server."),
       RequestCanceledIssue: () => console.error("Request canceled, nothing to do."),

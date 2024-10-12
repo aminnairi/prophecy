@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "name": "@prophecy/syslog",
+  "description": "Syslog utilities for Prophecy",
+  "version": "0.1.0"
+}

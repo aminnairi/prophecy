@@ -462,3 +462,41 @@ A method that allow you to take a decision based on the `Future` resolution, whe
 ```typescript
 on(options: { issue: OnIssue<Issue>, value?: OnValue<Value> }): null
 ```
+
+## Prior art
+
+### RxJS
+
+RxJS is a library that allow you to create observable data structures to make composition of behavior easier by creating a stream of data.
+
+It is heavily used by manu other libraries and frameworks, like Angular for instance.
+
+However, one thing missing from this library that is important when building robust software is the ability to precisely type the errors, which falls into the pit of the `Error` class that can be them discriminated using an `instanceof` keyword, except few people do this, since this is too much work, and the library as well as the language (JavaScript/TypeScript) does not provide enough help to make this easier.
+
+RxJS is probably the closest library in design from `@prophecy/future` since they both operate on inifinite and asynchronous data structures, but have the difference that this library has solutions for indicating clearly what errors can be expected from a `Future`, instead of having just a `Observable<Users>`, we can have a `Future<Users, UsersNotFoundIssue | UsersEmptyIssue>` in here.
+
+### Effect.ts
+
+Effect.ts is an interesting library that aims at doing so much more than just having a data structure for encoding values and errors.
+
+This is also a close solution from `@prophecy/future` because it has the ability to create data structures that can be asynchronous and infinite, and leverages tools from the language such as Promises or even Asynchronous Generators.
+
+This could in theory be a perfect replacement for this library, except it is doing so much more things under the hood, and might not be a perfect fit for teams that are in search of a replacement for observables, asynchronous generators or promises since Effect.ts is also a complete environment for things like batching, caching, concurrency, streaming and much more.
+
+Instead, `@prophecy/future` is a much more condensed set of tools that are only used to solve a specific problem: working with asynchronous and infinite data structures and composing in an easy and safe manner.
+
+### Elm
+
+Yes, Elm is not a direct JavaScript nor TypeScript library, but this one is rather an entirely new language which is a functional language.
+
+This library has first been inspired by Elm, and Haskell also, which has interesting ways of making your code more robust and type-safe in a pure and functional way.
+
+Things like Maybe or Result to encode a computation that can return a value or an error, which are really clever ways of explicitely dealing with potential errors, but also, the interesting one, the Task type, which is the equivalent of an `Effect`, or a `Future`.
+
+Elm has the advantage to have built-in tools in its language to easily work with those kind of data structure like pattern matching, and algebraic data types (ADT). Things like that are really missing in TypeScript when you want to have a more robust language, but due to the sheer nature of the JavaScript language, it seems like it will never be one day the case.
+
+However, one downside of Elm is that is has a limited scope for working with the JavaScript language, which you reach pretty soon when working with complex applications that needs more from the language, things like working with Web APIs that may not be directly supported for instance.
+
+For that, solutions exists that let you use the JavaScript language in order to work with the Elm runtime by using ports, which are in my opinion, the most well-tought and type-safe way of working with FFI (Foreign-Function Interfaces). Unfortunately, the problem is in its solution: you use the JavaScript language, an impure language where everything can be thrown at you for no apparent or documented reason, and that alone is a big downside when it comes to getting out and touching some Web APIs grass.
+
+In the contrary, `@prophecy/future` aims at giving you the tools right beside the language itself, in order to perform actions in a safer way. It also help you reduce the amount of language needed to be used (Elm + JavaScript) in order to do most of the things that are interesting to use for a Web Application like vibrating a device, registrating the geolocation, using SSe server, saving to the clipboard, etc...

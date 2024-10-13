@@ -1,7 +1,4 @@
-import { Future } from "@prophecy/future";
-import { kind } from "@prophecy/future/kind";
-import { DiscriminatedIssue } from "@prophecy/future/DiscriminatedIssue";
-import { UnexpectedIssue } from "@prophecy/future/UnexpectedIssue";
+import { DiscriminatedIssue, Future, kind, UnexpectedIssue } from "@prophecy/future";
 import { readFile, access, constants, writeFile } from "fs/promises";
 
 export enum PathAccess {

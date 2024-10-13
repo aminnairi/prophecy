@@ -1,12 +1,57 @@
-import { DiscriminatedIssue } from "./DiscriminatedIssue";
-import { Fork } from "./Fork";
-import { kind } from "./kind";
-import { OnIssue } from "./OnIssue";
-import { OnValue } from "./OnValue";
-import { ScalarValue } from "./ScalarValue";
-import { Start } from "./Start";
-import { UnexpectedIssue } from "./UnexpectedIssue";
-import { Update } from "./Update";
+
+export type Fork<Value> = (value: Value) => null;
+
+export type OnIssue<Issue> = (issue: Issue) => null;
+
+export type OnValue<Value> = (value: Value) => null;
+
+export type ScalarArray = Array<ScalarValue>;
+
+export type ScalarRecord = {
+  [key: string | number | symbol]: ScalarValue;
+};
+
+export type ScalarValue =
+  | string
+  | number
+  | boolean
+  | bigint
+  | symbol
+  | null
+  | undefined
+  | ScalarArray
+  | ScalarRecord;
+
+export type Start<Value, Issue> = (emitValue: OnValue<Value>, emitIssue: OnIssue<Issue>) => null;
+
+export type Update<Value, NewValue, NewIssue extends DiscriminatedIssue> = (value: Value) => Future<NewValue, NewIssue>;
+
+export interface DiscriminatedIssue {
+  [kind]: string;
+}
+
+export const kind = Symbol("DiscriminatedIssueKind");
+
+export function match<Issue extends DiscriminatedIssue>(patterns: {
+  [Key in Issue[typeof kind]]: (issue: Extract<Issue, { [kind]: Key; }>) => unknown;
+}) {
+  return (issue: Issue): null => {
+    const issueKind = issue[kind];
+
+    if (issueKind in patterns) {
+      // @ts-ignore
+      return patterns[issueKind](issue);
+    } else {
+      throw new Error(`No handler for issue kind: ${issueKind}`);
+    }
+  };
+}
+
+export class UnexpectedIssue implements DiscriminatedIssue {
+  public readonly [kind] = "UnexpectedIssue";
+
+  public constructor(public readonly error: Error) { }
+}
 
 export class Future<Value = never, Issue extends DiscriminatedIssue = UnexpectedIssue> {
   private constructor(private readonly observer: Start<Value, Issue>) { }
@@ -22,8 +67,8 @@ export class Future<Value = never, Issue extends DiscriminatedIssue = Unexpected
     });
   }
 
-  public static fromValue<Value extends ScalarValue>(value: Value) {
-    return Future.from<Value>(emitValue => {
+  public static fromValue<Value extends ScalarValue>(value: Value): Future<Value> {
+    return Future.from(emitValue => {
       return emitValue(value);
     });
   }
@@ -51,7 +96,7 @@ export class Future<Value = never, Issue extends DiscriminatedIssue = Unexpected
     });
   }
 
-  public recover<IssueKind extends Issue[typeof kind], RecoveredIssue extends Extract<Issue, { [kind]: IssueKind }>, IssueWithoutExcludedIssue extends Exclude<Issue, RecoveredIssue>, NewValue, NewIssue extends DiscriminatedIssue>({ issue, remediation }: { issue: IssueKind, remediation: (issue: RecoveredIssue) => Future<NewValue, NewIssue> }): Future<Value | NewValue, IssueWithoutExcludedIssue | NewIssue> {
+  public recover<IssueKind extends Issue[typeof kind], RecoveredIssue extends Extract<Issue, { [kind]: IssueKind }>, IssueWithoutExcludedIssue extends Exclude<Issue, RecoveredIssue>, NewValue, NewIssue extends DiscriminatedIssue>(issue: IssueKind, remediation: (issue: RecoveredIssue) => Future<NewValue, NewIssue>): Future<Value | NewValue, IssueWithoutExcludedIssue | NewIssue> {
     return new Future((emitValue, emitIssue) => {
       this.on({
         issue: nextIssue => {

@@ -1,5 +1,4 @@
 import { Future } from "@prophecy/future";
-import { UnexpectedIssue } from "@prophecy/future/UnexpectedIssue";
 
 export interface WithDelayOptions {
   milliseconds?: number,

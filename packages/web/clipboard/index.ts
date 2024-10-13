@@ -1,9 +1,28 @@
-import { Future } from "@prophecy/future";
-import { ClipboardWriteTextIssue } from "./ClipboardWriteTextIssue";
-import { ClipboardReadTextIssue } from "./ClipboardReadTextIssue";
-import { ClipboardReadItemsIssue } from "./ClipboardReadItemsIssue";
-import { ClipboardWriteItemsIssue } from "./ClipboardWriteItemsIssue";
-import { UnsupportedClipboardIssue } from "./UnsupportedClipboardIssue";
+import { DiscriminatedIssue, Future, kind } from "@prophecy/future";
+
+export class ClipboardReadItemsIssue implements DiscriminatedIssue {
+  public readonly [kind] = "ClipboardReadItemsIssue";
+  public constructor(public readonly error: Error) { }
+}
+
+export class ClipboardReadTextIssue implements DiscriminatedIssue {
+  public readonly [kind] = "ClipboardReadTextIssue";
+  public constructor(public readonly error: Error) { }
+}
+
+export class ClipboardWriteItemsIssue implements DiscriminatedIssue {
+  public readonly [kind] = "ClipboardWriteItemsIssue";
+  public constructor(public readonly error: Error) { }
+}
+
+export class ClipboardWriteTextIssue implements DiscriminatedIssue {
+  public readonly [kind] = "ClipboardWriteTextIssue";
+  public constructor(public readonly error: Error) { }
+}
+
+export class UnsupportedClipboardIssue implements DiscriminatedIssue {
+  public readonly [kind] = "UnsupportedClipboardIssue";
+}
 
 export const clipboardSupported = ({ navigator }: { navigator: Navigator; }) => {
   return Future.from<void, UnsupportedClipboardIssue>((emitValue, emitIssue) => {

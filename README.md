@@ -61,14 +61,15 @@ See [`example/node`](./example/node)
 
 Package | Description
 ---|---
-[`@prophecy/core`](./packages/core) | Core library for Prophecy
-[`@prophecy/issue`](./packages/issue) | Errors as discriminated issues with pattern matching
+[`@prophecy/array`](./packages/array) | Type-safe array manipulation
+[`@prophecy/future`](./packages/future) | Type-safe data structure for asynchronous inifinite data
 [`@prophecy/http`](./packages/http) | Type-safe http requests
 [`@prophecy/node`](./packages/node) | Type-safe Node.js APIs
-[`@prophecy/web`](./packages/web) | Type-safe Web APIs
-[`@prophecy/array`](./packages/array) | Type-safe array manipulation
+[`@prophecy/state`](./packages/state) | State management solution
 [`@prophecy/string`](./packages/string) | Type-safe string manipulation
+[`@prophecy/syslog`](./packages/syslog) | Type-safe Syslog implementation
 [`@prophecy/time`](./packages/time) | Type-safe time manipulation
+[`@prophecy/web`](./packages/web) | Type-safe Web APIs
 
 ## What's left to do?
 

@@ -1,3 +1,4 @@
+import { State } from "@prophecy/state";
 
 export type Fork<Value> = (value: Value) => null;
 
@@ -54,7 +55,7 @@ export class UnexpectedIssue implements DiscriminatedIssue {
 }
 
 export class Future<Value = never, Issue extends DiscriminatedIssue = UnexpectedIssue> {
-  private constructor(private readonly observer: Start<Value, Issue>) { }
+  private constructor(private readonly observer: Start<Value, Issue>) {}
 
   public static from<Value = never, Issue extends DiscriminatedIssue = UnexpectedIssue>(start: Start<Value, Issue>): Future<Value, Issue | UnexpectedIssue> {
     return new Future<Value, Issue | UnexpectedIssue>((emitValue, emitIssue) => {
@@ -82,13 +83,19 @@ export class Future<Value = never, Issue extends DiscriminatedIssue = Unexpected
   public and<NewValue, NewIssue extends DiscriminatedIssue>(update: Update<Value, NewValue, NewIssue>): Future<NewValue, Issue | NewIssue | UnexpectedIssue> {
     return new Future((emitValue, emitIssue) => {
       try {
-        return this.on({
+        this.on({
           issue: emitIssue,
-          value: value => update(value).on({
-            issue: emitIssue,
-            value: emitValue,
-          })
+          value: value => {
+            update(value).on({
+              issue: emitIssue,
+              value: emitValue,
+            });
+
+            return null;
+          }
         });
+
+        return null;
       } catch (error) {
         const errorNormalized = error instanceof Error ? error : new Error(String(error));
         return emitIssue(new UnexpectedIssue(errorNormalized));
@@ -101,10 +108,12 @@ export class Future<Value = never, Issue extends DiscriminatedIssue = Unexpected
       this.on({
         issue: nextIssue => {
           if (nextIssue[kind] === issue) {
-            return remediation(nextIssue as unknown as RecoveredIssue).on({
+            remediation(nextIssue as unknown as RecoveredIssue).on({
               issue: emitIssue,
               value: emitValue
             });
+
+            return null;
           }
 
           return emitIssue(nextIssue as unknown as IssueWithoutExcludedIssue);
@@ -128,3 +137,52 @@ export class Future<Value = never, Issue extends DiscriminatedIssue = Unexpected
     return this.observer(value, issue);
   }
 }
+
+export type Condition<Value> = (value: Value) => boolean
+
+export const when = <GenericValue, GenericIssue extends DiscriminatedIssue>(accept: Condition<GenericValue>, update: Update<GenericValue, GenericValue, GenericIssue | UnexpectedIssue>): Update<GenericValue, GenericValue, GenericIssue | UnexpectedIssue> => {
+  return (value: GenericValue) => {
+    return Future.from<GenericValue, GenericIssue | UnexpectedIssue>((emitValue, emitIssue) => {
+      if (accept(value)) {
+        update(value).on({
+          value: emitValue,
+          issue: emitIssue
+        });
+
+        return null;
+      }
+
+      return emitValue(value);
+    });
+  };
+};
+
+export type Action<Value> = (value: Value) => void;
+
+export const effect = <GenericValue, GenericIssue extends DiscriminatedIssue>(action: Action<GenericValue>): Update<GenericValue, GenericValue, GenericIssue | UnexpectedIssue> => {
+  return (value: GenericValue) => {
+    action(value);
+
+    return Future.from<GenericValue, GenericIssue>((emitValue) => {
+      return emitValue(value);
+    });
+  };
+};
+
+export const observable = <Value extends ScalarValue>(initialValue: Value): [(update: (value: Value) => Value) => void, Future<Value, UnexpectedIssue>] => {
+  const state = State.from(initialValue);
+
+  const future = Future.from<Value>((emitValue) => {
+    state.on(value => {
+      return emitValue(value);
+    })
+
+    return null;
+  });
+
+  const emitValue = (update: (value: Value) => Value) => {
+    state.next(update);
+  };
+
+  return [emitValue, future];
+};

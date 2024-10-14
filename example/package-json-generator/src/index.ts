@@ -1,21 +1,20 @@
-import { effect, Future, match, observable, when } from "@prophecy/future";
-import { State } from "@prophecy/state";
+import { effect, match, useFuture, when } from "@prophecy/future";
 import { string } from "@prophecy/string";
 import { EventKind, forEvent, forId, getInputValue, setTextContent } from "@prophecy/web/dom";
 
-interface PackageJson {
+type PackageJson = {
   name?: string,
   description?: string
 }
 
-const packageJsonContent = State.from<PackageJson>({});
+const [packageJson, setPackageJson] = useFuture<PackageJson>({});
 
 forId("name")
   .and(forEvent(EventKind.Input))
   .and(getInputValue)
   .and(string.future.trim)
-  .and(when(string.isEmpty, effect(() => packageJsonContent.next(({ name, ...rest }) => rest))))
-  .and(when(string.isNotEmpty, effect(name => packageJsonContent.next(value => ({ ...value, name })))))
+  .and(when(string.isEmpty, effect(() => setPackageJson(({ name, ...rest }) => rest))))
+  .and(when(string.isNotEmpty, effect(name => setPackageJson(value => ({ ...value, name })))))
   .on({
     issue: match({
       ElementNotFoundIssue: issue => {
@@ -34,8 +33,8 @@ forId("description")
   .and(forEvent(EventKind.Input))
   .and(getInputValue)
   .and(string.future.trim)
-  .and(when(string.isEmpty, effect(() => packageJsonContent.next(({ description, ...rest }) => rest))))
-  .and(when(string.isNotEmpty, effect(description => packageJsonContent.next(value => ({ ...value, description })))))
+  .and(when(string.isEmpty, effect(() => setPackageJson(({ description, ...rest }) => rest))))
+  .and(when(string.isNotEmpty, effect(description => setPackageJson(value => ({ ...value, description })))))
   .on({
     issue: match({
       ElementNotFoundIssue: issue => {
@@ -50,17 +49,19 @@ forId("description")
     })
   });
 
-packageJsonContent.on(value => {
-  return forId("output")
-    .and(setTextContent(JSON.stringify(value, null, 2)))
-    .on({
-      issue: match({
-        ElementNotFoundIssue: issue => {
-          alert(`Element with identifier ${issue.identifier} is not found in the current DOM.`);
-        },
-        UnexpectedIssue: issue => {
-          alert(`Unexpected issue: ${issue.error}.`);
-        }
-      })
-    });
-});
+packageJson
+  .and(string.future.fromJson(2))
+  .and(value => forId("output").and(setTextContent(value)))
+  .on({
+    issue: match({
+      ElementNotFoundIssue: issue => {
+        alert(`Element with id ${issue.identifier} not found in the current DOM.`);
+      },
+      JsonSerializationIssue: issue => {
+        alert(`Failed to serialize data ${issue.json}.`);
+      },
+      UnexpectedIssue: issue => {
+        alert(`Unexpected error: ${issue.error}.`);
+      }
+    })
+  });

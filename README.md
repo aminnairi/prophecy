@@ -73,6 +73,8 @@ Package | Description
 
 ## What's left to do?
 
+- Remove the state library
+- Document the API for future (when, effect, useFuture)
 - Add more packages and packages functions
 - Document the whole API once it gets out of the real-world testing phase
 - Compare this library with RxJS and credit them

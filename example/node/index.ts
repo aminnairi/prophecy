@@ -1,5 +1,4 @@
-import { Future } from "@prophecy/future";
-import { match } from "@prophecy/future/match";
+import { Future, match } from "@prophecy/future";
 import { writeToFile } from "@prophecy/node/filesystem";
 import { abortAt, createAbortController, sendAbortableRequest } from "@prophecy/http";
 import { Users, toJson, toStringifiedJson, toUsers } from "./schemas/users";
@@ -9,7 +8,7 @@ createAbortController()
   .and(sendAbortableRequest({ url: "https://jsonplaceholder.typicode.com/users" }))
   .and(toJson)
   .and(toUsers)
-  .recover({ issue: "UserValidationIssue", remediation: () => Future.from<Users>((onValue) => onValue([])) })
+  .recover("UserValidationIssue", () => Future.from<Users>((onValue) => onValue([])))
   .and(toStringifiedJson({ pretty: true }))
   .and(writeToFile({ path: "users.json" }))
   .on({

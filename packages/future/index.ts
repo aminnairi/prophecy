@@ -169,7 +169,7 @@ export const effect = <GenericValue, GenericIssue extends DiscriminatedIssue>(ac
   };
 };
 
-export const observable = <Value extends ScalarValue>(initialValue: Value): [(update: (value: Value) => Value) => void, Future<Value, UnexpectedIssue>] => {
+export const useFuture = <Value extends ScalarValue>(initialValue: Value): [Future<Value, UnexpectedIssue>, (update: (value: Value) => Value) => void] => {
   const state = State.from(initialValue);
 
   const future = Future.from<Value>((emitValue) => {
@@ -184,5 +184,5 @@ export const observable = <Value extends ScalarValue>(initialValue: Value): [(up
     state.next(update);
   };
 
-  return [emitValue, future];
+  return [future, emitValue];
 };

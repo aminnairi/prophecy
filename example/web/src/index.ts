@@ -1,14 +1,14 @@
-import { match } from "@prophecy/future/match";
 import { State } from "@prophecy/state";
 import { forId, forEvent, getInputValue, setTextContent, EventKind } from "@prophecy/web/dom";
-import { whenEmpty } from "@prophecy/string";
+import { string } from "@prophecy/string";
+import { match } from "@prophecy/future";
 
-const numberOfKeystrokes = new State(0);
+const numberOfKeystrokes = State.from(0);
 
 forId("text")
   .and(forEvent(EventKind.Input))
   .and(getInputValue)
-  .and(whenEmpty("John DOE"))
+  .and(string.future.whenEmpty("John DOE"))
   .and(text => forId("output").and(setTextContent(`Hello, ${text}`)))
   .parallel(() => numberOfKeystrokes.next(value => value + 1))
   .on({

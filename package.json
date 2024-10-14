@@ -10,6 +10,7 @@
     "packages/http",
     "packages/time",
     "example/web",
-    "example/node"
+    "example/node",
+    "example/package-json-generator"
   ]
 }

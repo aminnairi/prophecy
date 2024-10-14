@@ -1,4 +1,4 @@
-import { DiscriminatedIssue, Future, kind } from "@prophecy/future";
+import { DiscriminatedIssue, Future, kind, UnexpectedIssue } from "@prophecy/future";
 
 export class StringCharacterIndexNotFoundIssue implements DiscriminatedIssue {
   public readonly [kind] = "StringCharacterIndexNotFoundIssue";
@@ -8,6 +8,11 @@ export class StringCharacterIndexNotFoundIssue implements DiscriminatedIssue {
 export class StringEndsWithIssue implements DiscriminatedIssue {
   public readonly [kind] = "StringEndsWithIssue";
   public constructor(public readonly string: string, public readonly end: string) {}
+}
+
+export class JsonSerializationIssue implements DiscriminatedIssue {
+  public readonly [kind] = "JsonSerializationIssue";
+  public constructor(public readonly json: unknown) {}
 }
 
 export const filledOr = (fallback: string) => {
@@ -86,4 +91,20 @@ export const trim = (string: string) => {
   return Future.from<string>((emitValue) => {
     return emitValue(string.trim());
   });
+};
+
+export const fromJson = (indentation: number = 0) => {
+  return (input: unknown): Future<string, JsonSerializationIssue | UnexpectedIssue> => {
+    return Future.from((emitValue, emitIssue) => {
+      try {
+        return emitValue(JSON.stringify(input, null, indentation));
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          return emitIssue(new JsonSerializationIssue(input));
+        }
+
+        throw error;
+      }
+    });
+  };
 };

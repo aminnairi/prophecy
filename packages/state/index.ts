@@ -3,7 +3,11 @@ import { OnValue } from "./OnValue";
 export class State<Value> {
   private observers: Array<OnValue<Value>> = [];
 
-  constructor(private value: Value) { }
+  protected constructor(private value: Value) { }
+
+  public static from<Value>(value: Value): State<Value> {
+    return new State(value);
+  }
 
   public set(newValue: Value): void {
     this.value = newValue;

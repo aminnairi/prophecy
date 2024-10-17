@@ -9,6 +9,7 @@
     "packages/array",
     "packages/http",
     "packages/time",
+    "packages/syslog",
     "example/web",
     "example/node",
     "example/package-json-generator"

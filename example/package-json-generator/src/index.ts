@@ -2,9 +2,16 @@ import { effect, match, useFuture, when } from "@prophecy/future";
 import { string } from "@prophecy/string";
 import { EventKind, forEvent, forId, getInputValue, setTextContent } from "@prophecy/web/dom";
 
+type Dependency = {
+  identifier: string,
+  name: string,
+  version: string
+}
+
 type PackageJson = {
   name?: string,
-  description?: string
+  description?: string,
+  dependencies?: Array<Dependency>
 }
 
 const [packageJson, setPackageJson] = useFuture<PackageJson>({});

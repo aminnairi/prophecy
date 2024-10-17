@@ -157,10 +157,10 @@ export function effect<Value>(callback: (value: Value) => void) {
 
 export type Setter<Value> = (update: (value: Value) => Value) => void
 
-export const useFuture = <Value extends ScalarValue>(initialValue: Value): [Future<Value, UnexpectedIssue>, (update: (value: Value) => Value) => void] => {
+export const useFuture = <Value extends ScalarValue>(initialValue: Value): [Future<Value, UnexpectedIssue>, Setter<Value>] => {
   const state = State.from(initialValue);
 
-  const future = Future.from<Value>((emitValue) => {
+  const future = Future.of<Value>((emitValue) => {
     state.on(value => {
       return emitValue(value);
     })

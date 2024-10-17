@@ -8,7 +8,7 @@ export class ReadlineIssue implements DiscriminatedIssue {
 }
 
 export const question = ({ message, ...options }: ReadLineOptions & { message: string }) => {
-  return Future.from<string, ReadlineIssue>((onValue, onIssue) => {
+  return Future.of<string, ReadlineIssue>((onValue, onIssue) => {
     const readlineInterface = createInterface(options);
 
     readlineInterface.question(message).then(answer => {

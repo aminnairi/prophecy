@@ -57,7 +57,7 @@ export class UnexpectedIssue implements DiscriminatedIssue {
 export class Future<Value = never, Issue extends DiscriminatedIssue = UnexpectedIssue> {
   private constructor(private readonly observer: Start<Value, Issue>) {}
 
-  public static from<Value = never, Issue extends DiscriminatedIssue = UnexpectedIssue>(start: Start<Value, Issue>): Future<Value, Issue | UnexpectedIssue> {
+  public static of<Value = never, Issue extends DiscriminatedIssue = UnexpectedIssue>(start: Start<Value, Issue>): Future<Value, Issue | UnexpectedIssue> {
     return new Future<Value, Issue | UnexpectedIssue>((emitValue, emitIssue) => {
       try {
         return start(emitValue, emitIssue);

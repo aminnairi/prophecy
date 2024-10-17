@@ -20,7 +20,7 @@ export const userSchema = z.object({
 export const usersSchema = z.array(userSchema);
 
 export const toUsers = (data: unknown) => {
-  return Future.from<Users, UserValidationIssue>((onValue, onIssue) => {
+  return Future.of<Users, UserValidationIssue>((onValue, onIssue) => {
     const validation = usersSchema.safeParse(data);
 
     if (validation.success) {
@@ -32,7 +32,7 @@ export const toUsers = (data: unknown) => {
 }
 
 export const toJson = (data: string) => {
-  return Future.from<unknown, JsonParseIssue>((onValue, onIssue) => {
+  return Future.of<unknown, JsonParseIssue>((onValue, onIssue) => {
     try {
       return onValue(JSON.parse(data));
     } catch (error) {
@@ -43,7 +43,7 @@ export const toJson = (data: string) => {
 }
 
 export const toStringifiedJson = ({ pretty }: { pretty: boolean}) => (data: unknown) => {
-  return Future.from<string>(onValue => {
+  return Future.of<string>(onValue => {
     return onValue(JSON.stringify(data, null, pretty ? 2 : 0));
   });
 };

@@ -13,7 +13,7 @@ export class EventSourceIssue implements DiscriminatedIssue {
 export type EventSourceEventHandler<Value> = (event: MessageEvent) => Value;
 
 export const withEventSource = (url: string, options?: EventSourceInit) => {
-  return Future.from<EventSource, EventSourceIssue>((onValue, onIssue) => {
+  return Future.of<EventSource, EventSourceIssue>((onValue, onIssue) => {
     const eventSource = new EventSource(url, options);
 
     eventSource.addEventListener("error", error => {
@@ -26,7 +26,7 @@ export const withEventSource = (url: string, options?: EventSourceInit) => {
 
 export const forEventSourceEvent = <Value>(eventName: string, handler: EventSourceEventHandler<Value>) => {
   return (eventSource: EventSource) => {
-    return Future.from<Value>(onValue => {
+    return Future.of<Value>(onValue => {
       eventSource.addEventListener(eventName, event => {
         const value = handler(event);
         onValue(value);
@@ -42,7 +42,7 @@ export const forEventSourceMessageEvent = <Value>(handler: EventSourceEventHandl
 };
 
 export const closeEventSource = (eventSource: EventSource) => {
-  return Future.from<EventSource>((onValue) => {
+  return Future.of<EventSource>((onValue) => {
     eventSource.close();
     return onValue(eventSource);
   });

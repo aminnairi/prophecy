@@ -9,7 +9,7 @@ export class IndexNotFoundIssue<Item> implements DiscriminatedIssue {
 export const getArrayItemAt = (index: number) => {
   return <Item>(prophecy: Future<Array<Item>>) => {
     return prophecy.and(items => {
-      return Future.from<Item, IndexNotFoundIssue<Item>>((onValue, onIssue) => {
+      return Future.of<Item, IndexNotFoundIssue<Item>>((onValue, onIssue) => {
         const item = items.at(index);
 
         if (item === undefined) {

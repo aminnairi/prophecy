@@ -57,14 +57,14 @@ export interface HttpServerListenOptions {
 }
 
 export const withServer = () => {
-  return Future.from<Server>(onValue => {
+  return Future.of<Server>(onValue => {
     return onValue(createServer()); 
   });
 };
 
 export const withRoute = (matchMethod: (method: string) => boolean, matchUrl: (url: string) => boolean, handler: (request: HttpRequest) => HttpResponse) => {
   return (server: Server) => {
-    return Future.from<Server>(onValue => {
+    return Future.of<Server>(onValue => {
       server.on("request", (httpRequest, httpResponse) => {
         const httpMethod = httpRequest.method ?? "";
         const httpUrl = httpRequest.url ?? "";
@@ -87,7 +87,7 @@ export const withRoute = (matchMethod: (method: string) => boolean, matchUrl: (u
 
 export const listen = ({ port, host }: HttpServerListenOptions) => {
   return (server: Server) => {
-    return Future.from<HttpServerListenOptions, PortInfiniteIssue | PortNotNumberIssue | PortNegativeIssue | HostOctetsNotNumberIssue | HostFormatInvalidIssue | HostOctetsRangeIssue>((onValue, onIssue) => {
+    return Future.of<HttpServerListenOptions, PortInfiniteIssue | PortNotNumberIssue | PortNegativeIssue | HostOctetsNotNumberIssue | HostFormatInvalidIssue | HostOctetsRangeIssue>((onValue, onIssue) => {
       if (!Number.isFinite(port)) {
         return onIssue(new PortInfiniteIssue);
       }

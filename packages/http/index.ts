@@ -10,7 +10,7 @@ export class RequestCanceledIssue implements DiscriminatedIssue {
 }
 
 export const sendRequest = (url: string, options: RequestInit) => {
-  return Future.from<string, BadResponseIssue | RequestCanceledIssue | UnexpectedIssue>((onValue, onIssue) => {
+  return Future.of<string, BadResponseIssue | RequestCanceledIssue | UnexpectedIssue>((onValue, onIssue) => {
     fetch(url, options).then(response => {
       if (response.ok) {
         return response.text().then(text => {
@@ -46,7 +46,7 @@ export const sendAbortableRequest = ({ url, ...options }: RequestInit & { url: s
 }
 
 export const createAbortController = (): Future<AbortController, UnexpectedIssue> => {
-  return Future.from(onValue => {
+  return Future.of(onValue => {
     return onValue(new AbortController);
   });
 };
@@ -64,7 +64,7 @@ export interface AbortAtOutput {
 }
 
 export const abortAt = (options?: AbortAtOptions) => (abortController: AbortController): Future<AbortAtOutput, UnexpectedIssue> => {
-  return Future.from(onValue => {
+  return Future.of(onValue => {
     const { milliseconds, seconds, minutes, hours } = {
       milliseconds: 0,
       seconds: 0,
@@ -83,7 +83,7 @@ export const abortAt = (options?: AbortAtOptions) => (abortController: AbortCont
     }, delayInMilliseconds);
 
     const stopNextAbort = <Value>(value: Value): Future<Value, UnexpectedIssue> => {
-      return Future.from((onValue) => {
+      return Future.of((onValue) => {
         clearTimeout(timeoutIdentifier);
         return onValue(value);
       });

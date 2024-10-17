@@ -25,7 +25,7 @@ export class UnsupportedClipboardIssue implements DiscriminatedIssue {
 }
 
 export const clipboardSupported = ({ navigator }: { navigator: Navigator; }) => {
-  return Future.from<void, UnsupportedClipboardIssue>((emitValue, emitIssue) => {
+  return Future.of<void, UnsupportedClipboardIssue>((emitValue, emitIssue) => {
     if (typeof navigator.clipboard !== "object" || navigator.clipboard === null) {
       return emitIssue(new UnsupportedClipboardIssue);
     }
@@ -36,7 +36,7 @@ export const clipboardSupported = ({ navigator }: { navigator: Navigator; }) => 
 
 export const writeToClipboardFor = ({ navigator, text }: { navigator: Navigator, text: string }) => {
   return clipboardSupported({ navigator }).and(() => {
-    return Future.from<string, ClipboardWriteTextIssue>((emitValue, emitIssue) => {
+    return Future.of<string, ClipboardWriteTextIssue>((emitValue, emitIssue) => {
       navigator.clipboard.writeText(text).then(() => {
         emitValue(text);
       }).catch(error => {
@@ -56,7 +56,7 @@ export const writeTextToClipboard = ({ navigator }: { navigator: Navigator }) =>
 
 export const writeItemsToClipboardFor = ({ navigator, items }: { navigator: Navigator, items: ClipboardItems }) => {
   return clipboardSupported({ navigator }).and(() => {
-    return Future.from<ClipboardItems, ClipboardWriteItemsIssue>((emitValue, emitIssue) => {
+    return Future.of<ClipboardItems, ClipboardWriteItemsIssue>((emitValue, emitIssue) => {
       navigator.clipboard.write(items).then(() => {
         emitValue(items);
       }).catch(error => {
@@ -70,7 +70,7 @@ export const writeItemsToClipboardFor = ({ navigator, items }: { navigator: Navi
 
 export const readTextFromClipboard = ({ navigator }: { navigator: Navigator }) => {
   return clipboardSupported({ navigator }).and(() => {
-    return Future.from<string, ClipboardReadTextIssue>((emitValue, emitIssue) => {
+    return Future.of<string, ClipboardReadTextIssue>((emitValue, emitIssue) => {
       navigator.clipboard.readText().then(text => {
         emitValue(text);
       }).catch(error => {
@@ -84,7 +84,7 @@ export const readTextFromClipboard = ({ navigator }: { navigator: Navigator }) =
 
 export const readItemsFromClipboard = ({ navigator }: { navigator: Navigator }) => {
   return clipboardSupported({ navigator }).and(() => {
-    return Future.from<ClipboardItems, ClipboardReadItemsIssue>((emitValue, emitIssue) => {
+    return Future.of<ClipboardItems, ClipboardReadItemsIssue>((emitValue, emitIssue) => {
       navigator.clipboard.read().then(items => {
         emitValue(items);
       }).catch(error => {

@@ -16,7 +16,7 @@ export interface WithDelayOutput {
 }
 
 export const withDelay = (options?: WithDelayOptions) => {
-  return Future.from<WithDelayOutput>(onValue => {
+  return Future.of<WithDelayOutput>(onValue => {
     const { milliseconds, seconds, minutes, hours } = { milliseconds: 0, seconds: 0, minutes: 0, hours: 0, ...options ?? {} };
     const secondsInMilliseconds = seconds * 1000;
     const minutesInMilliseconds = minutes * 60 * 1000;

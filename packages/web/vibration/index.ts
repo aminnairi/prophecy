@@ -11,7 +11,7 @@ export class VibrationUnsupportedIssue implements DiscriminatedIssue {
 }
 
 export const vibrationSupported = (): Future<void, VibrationUnsupportedIssue | UnexpectedIssue> => {
-  return Future.from((onValue, onIssue) => {
+  return Future.of((onValue, onIssue) => {
     if (typeof window !== "object" || window === null || typeof window.navigator !== "object" || window.navigator === null || typeof window.navigator.vibrate !== "function") {
       return onIssue(new VibrationUnsupportedIssue);
     }
@@ -22,7 +22,7 @@ export const vibrationSupported = (): Future<void, VibrationUnsupportedIssue | U
 
 export const vibrate = (pattern: VibratePattern): Future<VibratePattern, VibrationUnsupportedIssue | VibrateInvalidArgumentIssue | UnexpectedIssue> => {
   return vibrationSupported().and(() => {
-    return Future.from((onValue, onIssue) => {
+    return Future.of((onValue, onIssue) => {
       const hasValidArguments = navigator.vibrate(pattern);
 
       if (!hasValidArguments) {
@@ -36,7 +36,7 @@ export const vibrate = (pattern: VibratePattern): Future<VibratePattern, Vibrati
 
 export const cancelVibration = (): Future<void, VibrationUnsupportedIssue | UnexpectedIssue> => {
   return vibrationSupported().and(() => {
-    return Future.from((onValue) => {
+    return Future.of((onValue) => {
       navigator.vibrate(0);
       return onValue();
     });

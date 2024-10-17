@@ -18,7 +18,7 @@ export class ShareNotAllowedIssue implements DiscriminatedIssue {
 }
 
 export const shareSupported = (navigator: Navigator) => {
-  return Future.from<void, UnsupportedShareIssue>((emitValue, emitIssue) => {
+  return Future.of<void, UnsupportedShareIssue>((emitValue, emitIssue) => {
     if (typeof navigator.share !== "function") {
       return emitIssue(new UnsupportedShareIssue);
     }
@@ -29,7 +29,7 @@ export const shareSupported = (navigator: Navigator) => {
 
 export const canShare = <Data extends ShareData>(navigator: Navigator, data: Data) => {
   return shareSupported(navigator).and(() => {
-    return Future.from<Data, UnshearebleDataIssue<Data>>((emitValue, emitIssue) => {
+    return Future.of<Data, UnshearebleDataIssue<Data>>((emitValue, emitIssue) => {
       const canShareData = navigator.canShare(data);
 
       if (!canShareData) {
@@ -43,7 +43,7 @@ export const canShare = <Data extends ShareData>(navigator: Navigator, data: Dat
 
 export const share = <Data extends ShareData>(navigator: Navigator, data: Data) => {
   return shareSupported(navigator).and(() => {
-    return Future.from<Data, UnshearebleDataIssue<Data> | DocumentInnactiveForShareIssue | ShareNotAllowedIssue>((emitValue, emitIssue) => {
+    return Future.of<Data, UnshearebleDataIssue<Data> | DocumentInnactiveForShareIssue | ShareNotAllowedIssue>((emitValue, emitIssue) => {
       navigator.share(data).then(() => {
         emitValue(data);
       }).catch(error => {

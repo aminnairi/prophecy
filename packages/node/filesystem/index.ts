@@ -21,7 +21,7 @@ export class PathAccessIssue implements DiscriminatedIssue {
 }
 
 export const withBufferForFile = (path: string) => {
-  return Future.from<Buffer, ReadFileIssue>((onValue, onIssue) => {
+  return Future.of<Buffer, ReadFileIssue>((onValue, onIssue) => {
     readFile(path).then(buffer => {
       onValue(buffer);
     }).catch(error => {
@@ -34,7 +34,7 @@ export const withBufferForFile = (path: string) => {
 };
 
 export const pathAccessibleForMode = (modes: PathAccess | Array<PathAccess>, path: string) => {
-  return Future.from<string, PathAccessIssue>((onValue, onIssue) => {
+  return Future.of<string, PathAccessIssue>((onValue, onIssue) => {
     const modesNormalized = Array.isArray(modes) ? modes : [modes];
 
     const modesCombined = modesNormalized.reduce((previousMode, currentMode) => {
@@ -65,7 +65,7 @@ export const pathAccessibleForMode = (modes: PathAccess | Array<PathAccess>, pat
 };
 
 export const writeStringToFile = (path: string, data: string): Future<void> => {
-  return Future.from((onValue, onIssue) => {
+  return Future.of((onValue, onIssue) => {
     writeFile(path, data).then(() => {
       onValue();
     }).catch(error => {
@@ -79,7 +79,7 @@ export const writeStringToFile = (path: string, data: string): Future<void> => {
 
 export const writeToFile = ({ path }: { path: string }) => {
   return (data: string): Future<string> => {
-    return Future.from((onValue, onIssue) => {
+    return Future.of((onValue, onIssue) => {
       writeFile(path, data).then(() => {
         onValue(data);
       }).catch(error => {

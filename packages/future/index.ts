@@ -132,34 +132,30 @@ export class Future<Value = never, Issue extends DiscriminatedIssue = Unexpected
 
 export type Condition<Value> = (value: Value) => boolean
 
-export const when = <GenericValue, GenericIssue extends DiscriminatedIssue>(accept: Condition<GenericValue>, update: Update<GenericValue, GenericValue, GenericIssue | UnexpectedIssue>): Update<GenericValue, GenericValue, GenericIssue | UnexpectedIssue> => {
-  return (value: GenericValue) => {
-    return Future.from<GenericValue, GenericIssue | UnexpectedIssue>((emitValue, emitIssue) => {
+export function when<Value, NewValue, Issue extends DiscriminatedIssue = UnexpectedIssue>(accept: (value: Value) => boolean, update: (value: Value) => Future<NewValue, Issue>) {
+  return function(value: Value): Future<Value | NewValue, Issue | UnexpectedIssue> {
+    return Future.of((emitValue, emitIssue) => {
       if (accept(value)) {
-        update(value).on({
-          value: emitValue,
-          issue: emitIssue
-        });
-
-        return null;
+        return update(value).run(emitIssue, emitValue);
       }
 
       return emitValue(value);
     });
-  };
-};
+  }
+}
 
 export type Action<Value> = (value: Value) => void;
 
-export const effect = <GenericValue, GenericIssue extends DiscriminatedIssue>(action: Action<GenericValue>): Update<GenericValue, GenericValue, GenericIssue | UnexpectedIssue> => {
-  return (value: GenericValue) => {
-    action(value);
-
-    return Future.from<GenericValue, GenericIssue>((emitValue) => {
+export function effect<Value>(callback: (value: Value) => void) {
+  return function<Issue extends DiscriminatedIssue = UnexpectedIssue>(value: Value): Future<Value, Issue | UnexpectedIssue> {
+    return Future.of((emitValue) => {
+      callback(value);
       return emitValue(value);
     });
-  };
-};
+  }
+}
+
+export type Setter<Value> = (update: (value: Value) => Value) => void
 
 export const useFuture = <Value extends ScalarValue>(initialValue: Value): [Future<Value, UnexpectedIssue>, (update: (value: Value) => Value) => void] => {
   const state = State.from(initialValue);

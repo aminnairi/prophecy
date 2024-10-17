@@ -11,11 +11,9 @@ createAbortController()
   .recover("UserValidationIssue", () => Future.from<Users>((onValue) => onValue([])))
   .and(toStringifiedJson({ pretty: true }))
   .and(writeToFile({ path: "users.json" }))
-  .on({
-    issue: match({
-      UnexpectedIssue: () => console.error("Failed to instantiate an abort controller"),
-      BadResponseIssue: () => console.error("Bad response from the server."),
-      RequestCanceledIssue: () => console.error("Request canceled, nothing to do."),
-      JsonParseIssue: () => console.error("Failed to parse the users from the response."),
-    })
-  });
+  .run(match({
+    UnexpectedIssue: () => console.error("Failed to instantiate an abort controller"),
+    BadResponseIssue: () => console.error("Bad response from the server."),
+    RequestCanceledIssue: () => console.error("Request canceled, nothing to do."),
+    JsonParseIssue: () => console.error("Failed to parse the users from the response."),
+  }));

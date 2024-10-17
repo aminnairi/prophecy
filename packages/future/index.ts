@@ -83,17 +83,17 @@ export class Future<Value = never, Issue extends DiscriminatedIssue = Unexpected
   public and<NewValue, NewIssue extends DiscriminatedIssue>(update: Update<Value, NewValue, NewIssue>): Future<NewValue, Issue | NewIssue | UnexpectedIssue> {
     return new Future((emitValue, emitIssue) => {
       try {
-        this.on({
-          issue: emitIssue,
-          value: value => {
-            update(value).on({
-              issue: emitIssue,
-              value: emitValue,
-            });
+        this.run(
+          emitIssue,
+          value => {
+            update(value).run(
+              emitIssue,
+              emitValue,
+            );
 
             return null;
           }
-        });
+        );
 
         return null;
       } catch (error) {
@@ -105,21 +105,21 @@ export class Future<Value = never, Issue extends DiscriminatedIssue = Unexpected
 
   public recover<IssueKind extends Issue[typeof kind], RecoveredIssue extends Extract<Issue, { [kind]: IssueKind }>, IssueWithoutExcludedIssue extends Exclude<Issue, RecoveredIssue>, NewValue, NewIssue extends DiscriminatedIssue>(issue: IssueKind, remediation: (issue: RecoveredIssue) => Future<NewValue, NewIssue>): Future<Value | NewValue, IssueWithoutExcludedIssue | NewIssue> {
     return new Future((emitValue, emitIssue) => {
-      this.on({
-        issue: nextIssue => {
+      this.run(
+        nextIssue => {
           if (nextIssue[kind] === issue) {
-            remediation(nextIssue as unknown as RecoveredIssue).on({
-              issue: emitIssue,
-              value: emitValue
-            });
+            remediation(nextIssue as unknown as RecoveredIssue).run(
+              emitIssue,
+              emitValue
+            );
 
             return null;
           }
 
           return emitIssue(nextIssue as unknown as IssueWithoutExcludedIssue);
         },
-        value: emitValue
-      });
+        emitValue
+      );
       return null;
     });
   }
@@ -133,8 +133,14 @@ export class Future<Value = never, Issue extends DiscriminatedIssue = Unexpected
     });
   }
 
-  public on({ issue, value = () => null }: { issue: OnIssue<Issue>, value?: OnValue<Value> }): null {
-    return this.observer(value, issue);
+  public run(issue: OnIssue<Issue>): null;
+  public run(issue: OnIssue<Issue>, value: OnValue<Value>): null;
+  public run(onIssue: OnIssue<Issue>, onValue?: OnValue<Value>): null {
+    if (onValue === undefined) {
+      return this.observer(() => null, onIssue);
+    }
+
+    return this.observer(onValue, onIssue);
   }
 }
 

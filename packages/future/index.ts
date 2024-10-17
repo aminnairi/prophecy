@@ -33,9 +33,7 @@ export interface DiscriminatedIssue {
 
 export const kind = Symbol("DiscriminatedIssueKind");
 
-export function match<Issue extends DiscriminatedIssue>(patterns: {
-  [Key in Issue[typeof kind]]: (issue: Extract<Issue, { [kind]: Key; }>) => unknown;
-}) {
+export function match<Issue extends DiscriminatedIssue>(patterns: { [Key in Issue[typeof kind]]: (issue: Extract<Issue, { [kind]: Key; }>) => unknown; }) {
   return (issue: Issue): null => {
     const issueKind = issue[kind];
 

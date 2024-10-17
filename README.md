@@ -73,6 +73,8 @@ Package | Description
 
 ## What's left to do?
 
+- Use function overloading for package that deal with scalar types (string, array, number, ...)
+- Delete the state package in favor of useFuture
 - Remove the state library
 - Document the API for future (when, effect, useFuture)
 - Add more packages and packages functions

@@ -8,7 +8,7 @@ createAbortController()
   .and(sendAbortableRequest({ url: "https://jsonplaceholder.typicode.com/users" }))
   .and(toJson)
   .and(toUsers)
-  .recover("UserValidationIssue", () => Future.from<Users>((onValue) => onValue([])))
+  .recover("UserValidationIssue", () => Future.of<Users>((onValue) => onValue([])))
   .and(toStringifiedJson({ pretty: true }))
   .and(writeToFile({ path: "users.json" }))
   .run(match({

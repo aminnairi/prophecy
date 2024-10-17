@@ -66,18 +66,6 @@ export class Future<Value = never, Issue extends DiscriminatedIssue = Unexpected
     });
   }
 
-  public static fromValue<Value extends ScalarValue>(value: Value): Future<Value> {
-    return Future.from(emitValue => {
-      return emitValue(value);
-    });
-  }
-
-  public static fromIssue<GenericIssue extends DiscriminatedIssue>(issue: GenericIssue) {
-    return Future.from<never, GenericIssue>((emitValue, emitIssue) => {
-      return emitIssue(issue);
-    });
-  }
-
   public and<NewValue, NewIssue extends DiscriminatedIssue>(update: Update<Value, NewValue, NewIssue>): Future<NewValue, Issue | NewIssue | UnexpectedIssue> {
     return new Future((emitValue, emitIssue) => {
       try {

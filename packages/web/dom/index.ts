@@ -104,7 +104,7 @@ export enum EventKind {
 export class ElementNotFoundIssue implements DiscriminatedIssue {
   public readonly [kind] = "ElementNotFoundIssue";
 
-  public constructor(public readonly identifier: string) {}
+  public constructor(public readonly identifier: string) { }
 }
 
 export class ElementNotInputIssue implements DiscriminatedIssue {
@@ -150,3 +150,53 @@ export const setTextContent = (textContent: string) => (element: HTMLElement) =>
     return onValue(element);
   });
 };
+
+export function createElement(name: string) {
+  return Future.of<HTMLElement>(emitValue => {
+    return emitValue(document.createElement(name));
+  });
+}
+
+export function createTextElement(text: string) {
+  return Future.of<Text>(emitValue => {
+    return emitValue(document.createTextNode(text));
+  });
+}
+
+export function setAttribute(name: string, value: string, element: HTMLElement): Future<HTMLElement>
+export function setAttribute(name: string, value: string): (element: HTMLElement) => Future<HTMLElement>
+export function setAttribute(name: string, value: string, element?: HTMLElement): Future<HTMLElement> | ((element: HTMLElement) => Future<HTMLElement>) {
+  function perform(name: string, value: string, element: HTMLElement) {
+    return Future.of<HTMLElement>(emitValue => {
+      element.setAttribute(name, value);
+      return emitValue(element);
+    });
+  }
+
+  if (element === undefined) {
+    return function setAttributeFor(element: HTMLElement) {
+      return perform(name, value, element);
+    }
+  }
+
+  return perform(name, value, element);
+}
+
+export function appendChild(child: HTMLElement | Text, parent: HTMLElement): Future<HTMLElement>
+export function appendChild(child: HTMLElement | Text): (parent: HTMLElement) => Future<HTMLElement>
+export function appendChild(child: HTMLElement | Text, parent?: HTMLElement): Future<HTMLElement> | ((parent: HTMLElement) => Future<HTMLElement>) {
+  function perform(child: HTMLElement | Text, parent: HTMLElement) {
+    return Future.of<HTMLElement>(emitValue => {
+      parent.appendChild(child);
+      return emitValue(parent);
+    });
+  }
+
+  if (parent === undefined) {
+    return function appendChildFor(parent: HTMLElement) {
+      return perform(child, parent);
+    }
+  }
+
+  return perform(child, parent);
+}

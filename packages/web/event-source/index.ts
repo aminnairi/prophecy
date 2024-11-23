@@ -1,4 +1,4 @@
-import { DiscriminatedIssue, Future, kind  } from "@prophecy/future";
+import { DiscriminatedIssue, Future, kind } from "@prophecy/future";
 
 /** @override */
 export interface MessageEvent {
@@ -7,7 +7,7 @@ export interface MessageEvent {
 
 export class EventSourceIssue implements DiscriminatedIssue {
   public readonly [kind] = "EventSourceIssue";
-  public constructor(public readonly event: Event) {}
+  public constructor(public readonly event: Event) { }
 }
 
 export type EventSourceEventHandler<Value> = (event: MessageEvent) => Value;
@@ -20,7 +20,11 @@ export const withEventSource = (url: string, options?: EventSourceInit) => {
       onIssue(new EventSourceIssue(error));
     });
 
-    return onValue(eventSource);
+    eventSource.addEventListener("open", () => {
+      return onValue(eventSource);
+    });
+
+    return null;
   });
 };
 

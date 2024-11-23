@@ -1,14 +1,14 @@
-import { DiscriminatedIssue, Future, kind } from "@prophecy/future";
+import { DiscriminatedIssue, Future, kind, UnexpectedIssue } from "@prophecy/future";
 import { Server, createServer } from "http";
 
 export class PortNegativeIssue implements DiscriminatedIssue {
   public readonly [kind] = "PortNegativeIssue";
-  public constructor(public readonly port: number) {} 
+  public constructor(public readonly port: number) { }
 }
 
 export class PortNotNumberIssue implements DiscriminatedIssue {
   public readonly [kind] = "PortNotNumberIssue";
-  public constructor(public readonly port: number) {} 
+  public constructor(public readonly port: number) { }
 }
 
 export class PortInfiniteIssue implements DiscriminatedIssue {
@@ -17,17 +17,17 @@ export class PortInfiniteIssue implements DiscriminatedIssue {
 
 export class HostFormatInvalidIssue implements DiscriminatedIssue {
   public readonly [kind] = "HostFormatInvalidIssue";
-  public constructor(public readonly host: string) {}
+  public constructor(public readonly host: string) { }
 }
 
 export class HostOctetsNotNumberIssue implements DiscriminatedIssue {
   public readonly [kind] = "HostOctetsInvalidIssue";
-  public constructor(public readonly host: string) {}
+  public constructor(public readonly host: string) { }
 }
 
 export class HostOctetsRangeIssue implements DiscriminatedIssue {
   public readonly [kind] = "HostOctetsRangeIssue";
-  public constructor(public readonly host: string) {}
+  public constructor(public readonly host: string) { }
 }
 
 export enum HttpMethod {
@@ -51,6 +51,14 @@ export interface HttpResponse {
   body: string
 }
 
+export type HttpRouteHandler<GenericIssue extends DiscriminatedIssue> = (request: HttpRequest) => Future<HttpResponse, GenericIssue>
+
+export interface HttpRoute<GenericIssue extends DiscriminatedIssue> {
+  method: (method: HttpMethod) => boolean,
+  path: (path: string) => boolean
+  handler: HttpRouteHandler<GenericIssue>
+}
+
 export interface HttpServerListenOptions {
   port: number,
   host: string
@@ -58,25 +66,55 @@ export interface HttpServerListenOptions {
 
 export const withServer = () => {
   return Future.of<Server>(onValue => {
-    return onValue(createServer()); 
+    return onValue(createServer());
   });
 };
 
-export const withRoute = (matchMethod: (method: string) => boolean, matchUrl: (url: string) => boolean, handler: (request: HttpRequest) => HttpResponse) => {
+export const toHttpMethod = (method: string): HttpMethod => {
+  switch (method) {
+    case HttpMethod.Delete:
+      return method;
+
+    case HttpMethod.Get:
+      return method
+
+    case HttpMethod.Head:
+      return method;
+
+    case HttpMethod.Options:
+      return method;
+
+    case HttpMethod.Patch:
+      return method;
+
+    case HttpMethod.Post:
+      return method;
+
+    case HttpMethod.Trace:
+      return method;
+  }
+
+  return HttpMethod.Get;
+};
+
+export const withRoute = <GenericIssue extends DiscriminatedIssue>(route: HttpRoute<GenericIssue>) => {
   return (server: Server) => {
-    return Future.of<Server>(onValue => {
+    return Future.of<Server, GenericIssue | UnexpectedIssue>((onValue, onIssue) => {
       server.on("request", (httpRequest, httpResponse) => {
-        const httpMethod = httpRequest.method ?? "";
+        const httpMethod = toHttpMethod(httpRequest.method ?? "");
         const httpUrl = httpRequest.url ?? "";
 
-        if (matchMethod(httpMethod ?? "") &&  matchUrl(httpUrl ?? "")) {
-          const response = handler({
+        if (route.method(httpMethod) && route.path(httpUrl)) {
+          const futureResponse = route.handler({
             method: httpMethod,
             url: httpUrl
           });
 
-          httpResponse.writeHead(response.statusCode, response.headers);
-          httpResponse.end(response.body);
+          futureResponse.parallel(response => {
+            httpResponse.writeHead(response.statusCode, response.headers);
+            httpResponse.end(response.body);
+            return null;
+          }).run(onIssue);
         }
       });
 
@@ -128,18 +166,20 @@ export const listen = ({ port, host }: HttpServerListenOptions) => {
   };
 };
 
-export const withMethod = (method: string, ...expectedMethods: HttpMethod[]): boolean => {
-  const uppercasedMethod = method.toUpperCase();
-  return expectedMethods.some(expectedMethod => uppercasedMethod === expectedMethod);
+export const forMethod = (...expectedMethods: HttpMethod[]) => {
+  return (method: HttpMethod) => {
+    const uppercasedMethod = method.toUpperCase();
+    return expectedMethods.some(expectedMethod => uppercasedMethod === expectedMethod);
+  }
 };
 
-export const withUrl = (pattern: string) => {
-  return (url: string) => {
+export const forPath = (pattern: string) => {
+  return (uri: string) => {
     const normalize = (path: string) => {
       return path.replace(/^\/+|\/+$/g, '').split('/');
     };
 
-    const urlSegments = normalize(url);
+    const urlSegments = normalize(uri);
     const patternSegments = normalize(pattern);
 
     if (urlSegments.length !== patternSegments.length) {
@@ -155,3 +195,7 @@ export const withUrl = (pattern: string) => {
     });
   };
 };
+
+export const forAnyMethod = () => true
+
+export const forAnyPath = () => true;
